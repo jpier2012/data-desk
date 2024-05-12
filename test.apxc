@@ -1,0 +1,243 @@
+public class DD_Generator {
+    public class Outputs {
+        @InvocableVariable(label='First Name')
+        public String firstName;
+        
+        @InvocableVariable(label='Last Name')
+        public String lastName;
+    }
+
+    @InvocableMethod(label='Generate Random Name')
+    public static List<Outputs> randomName() {
+        String[] name = getRandomName();
+        
+        Outputs outputs = new Outputs();
+        outputs.firstName = name[0];
+        outputs.lastName = name[1];
+        
+        return new Outputs[]{ outputs };
+    }
+//
+// getRandomName
+//
+    public static String[] getRandomName() {
+        // generate random index between 0 and the number of celebrity names - 1
+        return celebrityNames[Math.round(Math.random() * (celebrityNames.size() - 1))].split('\\,');
+    }
+//
+// getRandomDate
+//
+    public static String getRandomDateString(Map<String, Object> params){
+        Date startDate, endDate;
+        try {
+            startDate = Date.valueOf('' + params.get('start'));
+            endDate = Date.valueOf('' + params.get('end'));           
+            
+        } catch(Exception e){
+            String paramString = '';
+            for (String key : params.keySet()){
+                paramString += key + ' : ' + String.valueOf(params.get(key)) + '\n';
+            }
+            
+            throw new DataDeskException('Error parsing parameters : ' + paramString + ' : ' + e.getMessage());
+        }
+        
+        Integer daysBetween = startDate.daysBetween(endDate);
+        return ((DateTime)startDate.addDays(Math.round(Math.random() * daysBetween))).format('yyyy-MM-dd');
+    }
+//
+// getRandomDateTime
+//
+    public static String getRandomDateTimeString(Map<String, Object> params){
+        Date randomDate = Date.valueOf(getRandomDateString(params));
+        DateTime randomDateTime = 
+            DateTime.newInstance(
+                randomDate.year(), randomDate.month(), randomDate.day(), 
+                Math.round(Math.random() * 12), Math.round(Math.random() * 60), 0
+            );
+        
+        return randomDateTime.format('yyyy-MM-dd hh:mm');
+    }
+//
+// getRandomDecimal
+//
+    public static Decimal getRandomDecimal(Integer min, Integer max, Integer scale) {
+        return getRandomDecimal((Long)min, (Long)max, scale);
+    }
+    
+    public static Decimal getRandomDecimal(Long min, Long max, Integer scale) {
+        Long multiplier = max - min;
+        Decimal randomNumber = (Math.random() * multiplier) + min;
+        
+        if (scale != null){
+        	return randomNumber.setScale(scale);
+        } else {
+        	return Math.round(randomNumber);
+        }
+    }
+    
+    public static Decimal getRandomDecimal(Map<String, Object> params) {
+        String[] range;
+        Integer min, max, scale;
+        
+        try {
+            range = ((String)params.get('range')).split('\\,');
+            scale = Integer.valueOf(params.get('scale'));    
+            min = Integer.valueOf(range[0]);
+            max = Integer.valueOf(range[1]);
+        } catch(Exception e){
+            String paramString = '';
+            for (String key : params.keySet()){
+                paramString += key + ' : ' + String.valueOf(params.get(key)) + '\n';
+            }
+            
+            throw new DataDeskException('Error parsing parameters : ' + paramString);
+        }
+        
+        Integer multiplier = max - min;
+        Decimal randomNumber = (Math.random() * multiplier) + min;
+        
+        if (scale != null){
+        	return randomNumber.setScale(scale);
+        } else {
+        	return Math.round(randomNumber);
+        }
+    }
+//
+// getRandomReferenceId
+//
+    public static String getRandomReferenceId(Schema.DescribeFieldResult fieldDescribe, Map<String, Object> params){
+        String referencedObjectName = 
+            fieldDescribe
+            .getReferenceTo()[0]
+            .getDescribe()
+            .getName();
+        
+        if (referencedObjectName != 'User')
+        
+        String 
+            queryString = 'SELECT Id FROM ' + referencedObjectName,
+            criteria = (String)params.get('where'),
+            recordTypeName = (String)params.get('recordType');
+        
+        if (String.isNotBlank(recordTypeName)){
+           Map<String, String> recordTypeIds = DD_Util.getRecordTypeIdsByName(referencedObjectName);
+            
+            if (recordTypeIds != null && recordTypeIds?.get(recordTypeName) != null)
+        		queryString += ' WHERE RecordTypeId = \'' + recordTypeIds.get(recordTypeName) + '\'';
+        }
+        /*
+        if (String.isNotBlank(criteria)){
+            if (queryString.contains('WHERE')){
+                queryString += ' AND ' + criteria;
+            } else {
+                queryString += ' WHERE ' + criteria;
+            }
+        }*/
+        
+        
+        sObject[] records;
+
+        	records = Database.query(queryString);        
+        if (!records.isEmpty()){
+        	return records[(Integer)getRandomDecimal(0,records.size() - 1, 0)].Id;
+        } else {
+            return '';
+        }
+    }
+//
+// getRandomPicklistValue
+//
+    public static String getRandomPicklistValue(Schema.DescribeFieldResult fieldDescribe, Map<String, Object> params){
+       String[] values = new String[]{};
+        List<Schema.PicklistEntry> picklistEntries = fieldDescribe.getPicklistValues();
+        
+        for (Schema.PicklistEntry entry : picklistEntries) {
+            if (entry.isActive()) {
+                values.add(entry.getValue());
+            }
+        }
+        
+        if (values.size() == 0)
+            throw new DataDeskException('No available picklist values for field : ' + fieldDescribe.getName());
+        
+    	Integer randomIndex = Math.round((values.size() - 1) * Math.random());
+    
+    	return values[randomIndex];
+    }
+//
+// castOrGenerateValue
+//   
+    public static Object castOrGenerateValue(Schema.DescribeFieldResult fieldDescribe, Map<String, Object> params, Object valueToCast){
+        String 
+            dataType = fieldDescribe.getType().name(),
+            fieldName = fieldDescribe.getName();
+        Object value;
+        Boolean hasValue = valueToCast != null;
+        try {
+            if (dataType == DD_Util.FIELD_TYPE_REFERENCE){
+                value = hasValue ? valueToCast : getRandomReferenceId(fieldDescribe, params);
+                return '' + value;
+            } else if (dataType == DD_Util.FIELD_TYPE_PICKLIST || dataType == DD_Util.FIELD_TYPE_MULTIPICKLIST){
+                value = hasValue ? valueToCast : getRandomPicklistValue(fieldDescribe, params); 
+                return '' + value;
+            } else if (dataType == DD_Util.FIELD_TYPE_BOOLEAN){
+                value = hasValue ? valueToCast : Boolean.valueOf(getRandomDecimal(0,1,0));
+                return Boolean.valueOf(value);
+            } else if (dataType == DD_Util.FIELD_TYPE_EMAIL){
+                value = hasValue ? valueToCast : System.currentTimeMillis() + '@datadesk.email.com';
+                return '' + value;
+            } else if (dataType == DD_Util.FIELD_TYPE_DATE){
+                value = hasValue ? valueToCast : getRandomDateString(params);
+                return Date.valueOf('' + value);
+            } else if (dataType == DD_Util.FIELD_TYPE_DATETIME){
+                value = hasValue ? valueToCast : getRandomDateTimeString(params);
+                return DateTime.valueOf('' + value);
+            } else if (dataType == DD_Util.FIELD_TYPE_PHONE){
+                value = hasValue ? valueToCast : '' + getRandomDecimal(10000000000L,19999999999L,0);
+                return '' + value;
+            } else if (dataType == DD_Util.FIELD_TYPE_PERCENT){
+                value = hasValue ? valueToCast : getRandomDecimal(params);
+                return Double.valueOf(value);
+            } else if (dataType == DD_Util.FIELD_TYPE_INTEGER) {
+                value = hasValue ? valueToCast : getRandomDecimal(params);
+                return Integer.valueOf(value);
+            } else if (dataType == DD_Util.FIELD_TYPE_DOUBLE) {
+                value = hasValue ? valueToCast : getRandomDecimal(params);
+                return Double.valueOf(value);
+            } else if (dataType == DD_Util.FIELD_TYPE_CURRENCY) {
+                value = hasValue ? valueToCast : getRandomDecimal(params);
+                return (Decimal)value;
+            } else {
+            	return '' + value;
+            }
+            
+        } catch(Exception e){
+            String message = 'Error casting or generating value : ' + fieldName + ' : ' + value + '\n' + e.getMessage();
+            throw new DataDeskException(message);
+        }
+    }
+
+    public static final List<String> celebrityNames = new List<String>{
+        'Fifty,Cent',',Drake','Alice,Cooper','Angelina,Jolie','Angus,Young',
+            'Axl,Rose','Backstreet,Boys','Ben,Affleck','Beyonce,Knowles','Billy,Joel','Bon,Scott',
+            'Brad,Pitt','Brian,Johnson','Britney,Spears','Bruce,Springsteen','Bruce,Willis',
+            'Bruce,Springsteen','Celine,Dion','Cristiano,Ronaldo','Dan,Brown','David,Bowie',
+            'David,Beckham','Doctor,Dre','Dwayne,Johnson','Ed,Sheeran','Eddie,Vedder',
+            'Ellen,DeGeneres','Elton,John','Eric,Clapton','Floyd,Mayweather Jr.',
+            'Floyd,Mayweather','Freddie,Mercury','Garth,Brooks','Gene,Simmons','George,Lucas',
+            'George,Clooney','Harrison,Ford','Howard,Stern','J.K.,Rowling',
+            'James,Cameron','James,Patterson','Janis,Joplin','Jay,Z','Jennifer,Aniston','Jennifer,Lopez',
+            'Jerry,Seinfeld','Jim,Morrison','Jimi,Hendrix','Joan,Jett','John,Lennon','Johnny,Depp',
+            'Jon,Bon Jovi','Judge,Judy Sheindlin','Julia,Roberts','Justin,Bieber','Kanye,West',
+            'Katy,Perry','Kevin,Hart','Kim,Kardashian','Kobe,Bryant','Kurt,Cobain','Kylie,Jenner',
+            'Lady,Gaga','LeBron,James','Lemmy,Kilmister','Leonardo,DiCaprio','Lionel,Messi','Manny,Pacquiao',
+            'Mariah,Carey','Mel,Gibson','Michael,Jordan','Mick,Jagger','Oprah,Winfrey','Ozzy,Osbourne',
+            'Paul,McCartney','Paul,McCartney','Paula,Deen','Phil,McGraw','Robert,Plant','Robert,Downey Jr.',
+            'Robin,Williams','Roger,Daltrey','Roger,Federer','Ronnie,JamesDio','Rush,Limbaugh','Sandra,Bullock',
+            'Saul,Canelo Alvarez','Sean,Diddy Combs','Shaquille,O\'Neal','Simon,Cowell','Spice,Girls','Steven,Tyler',
+            'Steven,Spielberg','Taylor,Swift','The,Weeknd','Tiger,Woods','Tom,Petty','Tom,Hanks','Tom,Cruise',
+            'Tyler,Perry',',Eminem',',Cher',',Bono',',Rihanna',',Adele','Jimmers,Dudeman','Ronald,Washington',
+            'Chip,Digster','Saucy,Thompson'
+     };
+}
