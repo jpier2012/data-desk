@@ -11,7 +11,7 @@ export default class PlatformToast extends LightningElement {
   userId = Id;
   subscription = {};
 
-  showToast(application, title, message, variant, user) {
+  showToast(application, title, message, variant, mode, user) {
     if (
       (user == null || user === this.userId) &&
       (application == null || application === this.applicationName)
@@ -20,6 +20,7 @@ export default class PlatformToast extends LightningElement {
         title: title,
         message: message,
         variant: variant,
+        mode: mode,
         role: 'status'
       });
       this.dispatchEvent(evt);
@@ -34,6 +35,7 @@ export default class PlatformToast extends LightningElement {
         message.Title__c,
         message.Message__c,
         message.Style__c,
+        message.Mode__c,
         message.User__c
       );
     }.bind(this);

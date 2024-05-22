@@ -18,6 +18,12 @@
             </value>
         </inputParameters>
         <inputParameters>
+            <name>mode</name>
+            <value>
+                <stringValue>Dismissible</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
             <name>style</name>
             <value>
                 <stringValue>success</stringValue>

@@ -170,7 +170,8 @@ public class DD_Util {
                 JSON_Required_Merge_Values__c,
                 JSON_Random_Value_Ranges__c, 
                 JSON_Random_Reference_Queries__c,
-                JSON_Random_Picklist_Values__c, 
+                JSON_Random_Picklist_Values__c,
+                Required_and_Merge_Fields_Only__c, 
                 Parent_Work_Order__c, 
                 Parent_Lookup_Field__c,
                 Base_Quantity__c, 
@@ -268,7 +269,8 @@ public class DD_Util {
         
         DD_Work_Order__c workOrder = DD_Util.getWorkOrder(workOrderId);
         
-        fieldMap = new JSONParse(workOrder.JSON_Required_Merge_Values__c)?.asMap();
+        fieldMap = String.isBlank(workOrder.JSON_Required_Merge_Values__c) ? null : new JSONParse(workOrder.JSON_Required_Merge_Values__c)?.asMap();
+        
         if (fieldMap != null){
             for (String fieldName : fieldMap.keySet()){
                 load.mergeValuesByField.put(
@@ -277,44 +279,46 @@ public class DD_Util {
             }
         }
         
-        fieldMap = new JSONParse(workOrder.JSON_Random_Reference_Queries__c)?.asMap(); 
-        
-        if (fieldMap != null){
-            for (String fieldName : fieldMap.keySet()){
-                if (load.mergeValuesByField.get(fieldName) == null){
-                    load.randomValuesByField.put(
-                        fieldName, 
-                        DD_Util.getReferenceIds(
-                            DD_Util.getFieldDescribe(workOrder.Object_Name__c, fieldName), 
-                            DD_Util.getStringMapFromJson(fieldMap.get(fieldName).asMap()) 
-                        )
-                    );
+        if (!workOrder.Required_and_Merge_Fields_Only__c){
+            fieldMap = String.isBlank(workOrder.JSON_Random_Reference_Queries__c) ? null : new JSONParse(workOrder.JSON_Random_Reference_Queries__c)?.asMap(); 
+            
+            if (fieldMap != null){
+                for (String fieldName : fieldMap.keySet()){
+                    if (load.mergeValuesByField.get(fieldName) == null){
+                        load.randomValuesByField.put(
+                            fieldName, 
+                            DD_Util.getReferenceIds(
+                                DD_Util.getFieldDescribe(workOrder.Object_Name__c, fieldName), 
+                                DD_Util.getStringMapFromJson(fieldMap.get(fieldName).asMap()) 
+                            )
+                        );
+                    }
                 }
             }
-        }
-        
-        fieldMap = new JSONParse(workOrder.JSON_Random_Picklist_Values__c)?.asMap();
-        if (fieldMap != null){
-            for (String fieldName : fieldMap.keySet()){
-                if (load.mergeValuesByField.get(fieldName) == null){
-                    load.randomValuesByField.put(
-                        fieldName, 
-                        DD_Util.getIncludedPicklistValues(
-                           DD_Util.getFieldDescribe(workOrder.Object_Name__c, fieldName), 
-                           fieldMap.get(fieldName).getStringValue() 
-                        )
-                    );
+            
+            fieldMap = String.isBlank(workOrder.JSON_Random_Picklist_Values__c) ? null : new JSONParse(workOrder.JSON_Random_Picklist_Values__c)?.asMap();
+            if (fieldMap != null){
+                for (String fieldName : fieldMap.keySet()){
+                    if (load.mergeValuesByField.get(fieldName) == null){
+                        load.randomValuesByField.put(
+                            fieldName, 
+                            DD_Util.getIncludedPicklistValues(
+                               DD_Util.getFieldDescribe(workOrder.Object_Name__c, fieldName), 
+                               fieldMap.get(fieldName).getStringValue() 
+                            )
+                        );
+                    }
                 }
             }
-        }
-        
-        fieldMap = new JSONParse(workOrder.JSON_Random_Value_Ranges__c)?.asMap();
-        if (fieldMap != null){
-            for (String fieldName : fieldMap.keySet()){
-                if (load.mergeValuesByField.get(fieldName) == null){
-                    load.randomValuesByField.put(
-                        fieldName, new List<String> { fieldMap.get(fieldName).getStringValue() }
-                    );
+            
+            fieldMap = String.isBlank(workOrder.JSON_Random_Value_Ranges__c) ? null : new JSONParse(workOrder.JSON_Random_Value_Ranges__c)?.asMap();
+            if (fieldMap != null){
+                for (String fieldName : fieldMap.keySet()){
+                    if (load.mergeValuesByField.get(fieldName) == null){
+                        load.randomValuesByField.put(
+                            fieldName, new List<String> { fieldMap.get(fieldName).getStringValue() }
+                        );
+                    }
                 }
             }
         }

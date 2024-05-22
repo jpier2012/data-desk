@@ -23,7 +23,7 @@
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
-                <field>Generate_Random_Values__c</field>
+                <field>Required_and_Merge_Fields_Only__c</field>
             </layoutItems>
         </layoutColumns>
         <layoutColumns>

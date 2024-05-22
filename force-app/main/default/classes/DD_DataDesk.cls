@@ -97,7 +97,7 @@ global class DD_DataDesk implements Database.batchable<sObject>, Database.Statef
         
         // starts with top-level objects
         for (sObject sObj : batch){
-            Integer multiplier = 1;
+            Integer multiplier = workOrder.Quantity_Per_Parent__c == null ? 1 : (Integer)workOrder.Quantity_Per_Parent__c;
             
             //
             // Determine the record count multiplier, if random quantity is selected
@@ -105,7 +105,7 @@ global class DD_DataDesk implements Database.batchable<sObject>, Database.Statef
             if (workOrder.Random_Quantity_Per_Parent__c && String.isNotBlank(workOrder.Random_Range__c)){
                 String[] range;
                 try {
-                	range = workOrder.Random_Range__c.split('\\,');
+                	range = DD_Util.split(workOrder.Random_Range__c);
                 } catch(Exception e){
                     handleError('Error parsing random number range : ' + workOrder.Random_Range__c, e);
                 }
@@ -127,22 +127,33 @@ global class DD_DataDesk implements Database.batchable<sObject>, Database.Statef
                 //
                 // Randomizer fields
                 //
-                for (String fieldName : randomValuesByField.keySet()){ 
-
-                    Schema.DescribeFieldResult fieldDescribe = DD_Util.getFieldDescribe(objectName, fieldName);
-                    
-                    Object value;
-                    try {
-                        value = DD_Generator.getValue(fieldDescribe, randomValuesByField.get(fieldName), null);
-                        record.put(fieldName, value);
-                    } catch(Exception e){
-                        handleError('Error setting random field value : ' + fieldName, e);
+                if (!workOrder.Required_and_Merge_Fields_Only__c){
+                    for (String fieldName : randomValuesByField.keySet()){ 
+    
+                        Schema.DescribeFieldResult fieldDescribe = DD_Util.getFieldDescribe(objectName, fieldName);
+                        
+                        Object value;
+                        try {
+                            value = DD_Generator.getValue(fieldDescribe, randomValuesByField.get(fieldName), null);
+                            record.put(fieldName, value);
+                        } catch(Exception e){
+                            handleError('Error setting random field value : ' + fieldName, e);
+                        }
+                        
+                        trace(fieldName, '' + record.get(fieldName));
                     }
-                    
-                    trace(fieldName, '' + record.get(fieldName));
+                    // add spaces to separate out override fields
+                    stackTrace += '\n';
+                    //
+                    // Set defaults and required fields
+                    if (objectName == 'Lead' || objectName == 'Contact'){
+                        String[] names = DD_Generator.getRandomName();
+                        record.put('FirstName', names[0]);
+                        record.put('LastName', names[1]);
+                        trace('FirstName', names[0]);
+                        trace('LastName', names[1]);
+                    }
                 }
-                // add spaces to separate out override fields
-                stackTrace += '\n';
                 
                 //
                 // merge fields
@@ -163,17 +174,6 @@ global class DD_DataDesk implements Database.batchable<sObject>, Database.Statef
                 }
                 // add spaces to separate out override fields
                 stackTrace += '\n';
-                
-                //
-                // Set defaults and required fields
-                if (objectName == 'Lead' || objectName == 'Contact'){
-                    
-                    String[] names = DD_Generator.getRandomName();
-                    record.put('FirstName', names[0]);
-                    record.put('LastName', names[1]);
-                    trace('FirstName', names[0]);
-                    trace('LastName', names[1]);
-                }
                 
                 //
                 // Populate references to parent object, overwrite random references
@@ -254,10 +254,10 @@ global class DD_DataDesk implements Database.batchable<sObject>, Database.Statef
             log.Errors__c = (log.Errors__c + '\n\n' + errorString).left(130000);
             update log;
             
-            InvokeToast.launch('error', workOrder.Name + ' Batch Job Failed!', 
-                               'Total errors : ' + errors.keySet().size() + ' : ' + 
-                               new List<String>(errors.keySet())[0]
-                              );
+            InvokeToast.launch('error',
+                               'sticky', 
+                               workOrder.Name + ' Batch Job Failed!', 
+                               'Total errors : ' + errors.keySet().size() + ' : ' + new List<String>(errors.keySet()));
         } else {
             String sampleRecord = '';
             
@@ -285,7 +285,10 @@ global class DD_DataDesk implements Database.batchable<sObject>, Database.Statef
                 log.Time_Elapsed_s__c = (((Decimal)stopMillis - (Decimal)startMillis) / (Decimal)1000).setScale(3);
             }
             update log;
-            InvokeToast.launch('success', workOrder.Name + ' Batch Job Complete!', recordTypeString + workOrder.Object_Name__c + ' : ' + totalRecords + ' records created.');
+            InvokeToast.launch('success', 
+                              'dismissible', 
+                               workOrder.Name + ' Batch Job Complete!', 
+                               recordTypeString + workOrder.Object_Name__c + ' : ' + totalRecords + ' records created.');
         }
     }
     

@@ -66,11 +66,6 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>DD_Work_Order__c.Generate_Random_Values__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>true</editable>
         <field>DD_Work_Order__c.JSON_Random_Picklist_Values__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -147,6 +142,11 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>DD_Work_Order__c.Record_Type_Name__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>DD_Work_Order__c.Required_and_Merge_Fields_Only__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>

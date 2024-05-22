@@ -22,7 +22,7 @@ public class DD_Generator {
 //
     public static String[] getRandomName() {
         // generate random index between 0 and the number of celebrity names - 1
-        return celebrityNames[Math.round(Math.random() * (celebrityNames.size() - 1))].split('\\,');
+        return DD_Util.split(celebrityNames[Math.round(Math.random() * (celebrityNames.size() - 1))]);
     }
 //
 // getRandomDate
@@ -208,25 +208,25 @@ public class DD_Generator {
     }
     
     public static final List<String> celebrityNames = new List<String>{
-        'Fifty,Cent',',Drake','Alice,Cooper','Angelina,Jolie','Angus,Young',
-            'Axl,Rose','Backstreet,Boys','Ben,Affleck','Beyonce,Knowles','Billy,Joel','Bon,Scott',
-            'Brad,Pitt','Brian,Johnson','Britney,Spears','Bruce,Springsteen','Bruce,Willis',
-            'Bruce,Springsteen','Celine,Dion','Cristiano,Ronaldo','Dan,Brown','David,Bowie',
-            'David,Beckham','Doctor,Dre','Dwayne,Johnson','Ed,Sheeran','Eddie,Vedder',
-            'Ellen,DeGeneres','Elton,John','Eric,Clapton','Floyd,Mayweather Jr.',
-            'Floyd,Mayweather','Freddie,Mercury','Garth,Brooks','Gene,Simmons','George,Lucas',
-            'George,Clooney','Harrison,Ford','Howard,Stern','J.K.,Rowling',
-            'James,Cameron','James,Patterson','Janis,Joplin','Jay,Z','Jennifer,Aniston','Jennifer,Lopez',
-            'Jerry,Seinfeld','Jim,Morrison','Jimi,Hendrix','Joan,Jett','John,Lennon','Johnny,Depp',
-            'Jon,Bon Jovi','Judge,Judy Sheindlin','Julia,Roberts','Justin,Bieber','Kanye,West',
-            'Katy,Perry','Kevin,Hart','Kim,Kardashian','Kobe,Bryant','Kurt,Cobain','Kylie,Jenner',
-            'Lady,Gaga','LeBron,James','Lemmy,Kilmister','Leonardo,DiCaprio','Lionel,Messi','Manny,Pacquiao',
-            'Mariah,Carey','Mel,Gibson','Michael,Jordan','Mick,Jagger','Oprah,Winfrey','Ozzy,Osbourne',
-            'Paul,McCartney','Paul,McCartney','Paula,Deen','Phil,McGraw','Robert,Plant','Robert,Downey Jr.',
-            'Robin,Williams','Roger,Daltrey','Roger,Federer','Ronnie,JamesDio','Rush,Limbaugh','Sandra,Bullock',
-            'Saul,Canelo Alvarez','Sean,Diddy Combs','Shaquille,O\'Neal','Simon,Cowell','Spice,Girls','Steven,Tyler',
-            'Steven,Spielberg','Taylor,Swift','The,Weeknd','Tiger,Woods','Tom,Petty','Tom,Hanks','Tom,Cruise',
-            'Tyler,Perry',',Eminem',',Cher',',Bono',',Rihanna',',Adele','Jimmers,Dudeman','Ronald,Washington',
-            'Chip,Digster','Saucy,Thompson','Theresa,Recording','Marcus,Unread','Stella,Artois','Alexander,The Great'
+        'Fifty|Cent','|Drake','Alice|Cooper','Angelina|Jolie','Angus|Young',
+            'Axl|Rose','Backstreet|Boys','Ben|Affleck','Beyonce|Knowles','Billy|Joel','Bon|Scott',
+            'Brad|Pitt','Brian|Johnson','Britney|Spears','Bruce|Springsteen','Bruce|Willis',
+            'Bruce|Springsteen','Celine|Dion','Cristiano|Ronaldo','Dan|Brown','David|Bowie',
+            'David|Beckham','Doctor|Dre','Dwayne|Johnson','Ed|Sheeran','Eddie|Vedder',
+            'Ellen|DeGeneres','Elton|John','Eric|Clapton','Floyd|Mayweather Jr.',
+            'Floyd|Mayweather','Freddie|Mercury','Garth|Brooks','Gene|Simmons','George|Lucas',
+            'George|Clooney','Harrison|Ford','Howard|Stern','J.K.|Rowling',
+            'James|Cameron','James|Patterson','Janis|Joplin','Jay|Z','Jennifer|Aniston','Jennifer|Lopez',
+            'Jerry|Seinfeld','Jim|Morrison','Jimi|Hendrix','Joan|Jett','John|Lennon','Johnny|Depp',
+            'Jon|Bon Jovi','Judge|Judy Sheindlin','Julia|Roberts','Justin|Bieber','Kanye|West',
+            'Katy|Perry','Kevin|Hart','Kim|Kardashian','Kobe|Bryant','Kurt|Cobain','Kylie|Jenner',
+            'Lady|Gaga','LeBron|James','Lemmy|Kilmister','Leonardo|DiCaprio','Lionel|Messi','Manny|Pacquiao',
+            'Mariah|Carey','Mel|Gibson','Michael|Jordan','Mick|Jagger','Oprah|Winfrey','Ozzy|Osbourne',
+            'Paul|McCartney','Paul|McCartney','Paula|Deen','Phil|McGraw','Robert|Plant','Robert|Downey Jr.',
+            'Robin|Williams','Roger|Daltrey','Roger|Federer','Ronnie|James Dio','Rush|Limbaugh','Sandra|Bullock',
+            'Saul|Canelo Alvarez','Sean|Diddy Combs','Shaquille|O\'Neal','Simon|Cowell','Spice|Girls','Steven|Tyler',
+            'Steven|Spielberg','Taylor|Swift','The|Weeknd','Tiger|Woods','Tom|Petty','Tom|Hanks','Tom|Cruise',
+            'Tyler|Perry','|Eminem','|Cher','|Bono','|Rihanna','|Adele','Jimmers|Dudeman','Ronald|Washington',
+            'Chip|Digster','Saucy|Thompson','Theresa|Recording','Marcus|Unread','Stella|Artois','Alexander|The Great'
      };
 }
