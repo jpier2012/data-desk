@@ -19,6 +19,10 @@
                 <behavior>Edit</behavior>
                 <field>Stack_Trace__c</field>
             </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>Log_Type__c</field>
+            </layoutItems>
         </layoutColumns>
         <layoutColumns>
             <layoutItems>
@@ -72,8 +76,6 @@
     <relatedLists>
         <fields>NAME</fields>
         <fields>DD_Work_Order__c.Record_Type_Name__c</fields>
-        <fields>DD_Work_Order__c.Object_Name__c</fields>
-        <fields>DD_Work_Order__c.Total_Records_Created__c</fields>
         <fields>DD_Work_Order__c.Quantity_Per_Parent__c</fields>
         <fields>DD_Work_Order__c.Parent_Object__c</fields>
         <relatedList>DD_Work_Order_Log__c.Log__c</relatedList>

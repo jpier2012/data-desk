@@ -9,6 +9,7 @@
         <members>DD_Generator</members>
         <members>DD_Refresher</members>
         <members>DD_DataDesk</members>
+        <members>DataDeskException</members>
         <members>JSONParse</members>
         <name>ApexClass</name>
     </types>

@@ -23,10 +23,68 @@ public class DD_Util {
         QUERY_RECORD_TYPE_NAME = 'recordTypeName',
         QUERY_CRITERIA = 'criteria',
         QUERY_ORDER_BY = 'orderBy',
-        QUERY_RECORD_LIMIT = 'recordLimit';
+        QUERY_RECORD_LIMIT = 'recordLimit',
+        
+        // Work order types
+        WORK_ORDER_TYPE_AUTOMATED_QA = 'Automated QA',
+        WORK_ORDER_TYPE_MASS_RECORD_GENERATION = 'Mass Record Generation',
+        QA_PROCESS_TYPE_RECORD_CREATE = 'Record Create',
+        QA_PROCESS_TYPE_RECORD_UPDATE = 'Record Update',
+        
+        //MISC
+        INPUT_RECORD_PREFIX = '_INPUT';
+    
+    //
+	// Iterable   
+    //
+    public class CustomIterable implements Iterable<sObject>{ 
+        Integer quantity;
+        String objectName, recordTypeId;
+        
+        public CustomIterable(Decimal quantity, String objectName){
+            this.quantity = (Integer)quantity;
+            this.objectName = objectName;
+            this.recordTypeId = recordTypeId;
+        }
+        
+        public Iterator<sObject> Iterator(){
+            return new CustomIterator(quantity, objectName, recordTypeId);
+        }
+    }
+    
+    public class CustomIterator implements Iterator<sObject>{
+        public sObject[] recordsToCreate = new sObject[]{}; 
+        Integer index = -1;
+        
+        public CustomIterator(Integer quantity, String objectName, String recordTypeId){
+            for (Integer i = 0; i < quantity; i++){
+                recordsToCreate.add(newSObject(objectName, recordTypeId));
+            }
+        }
+        
+        public Boolean hasNext(){
+            if (index >= (recordsToCreate.size() - 1)){
+                return false;
+            } else {
+                return true;
+            }
+        }    
+        
+        public sObject next(){
+            return recordsToCreate[++index];
+        } 
+    }
     
     public static String[] split(String input){
-    	return input.split('\\|');
+        String[] result;
+        
+        try {
+        	result = input.split('\\|');
+        } catch(Exception e){
+            throw new DataDeskException('Error splitting string. Values must be pipe delimited : ' + e.getMessage());
+        }
+        
+    	return result;
     }
         
     // Global describe info to be referenced by all other classes
@@ -166,11 +224,14 @@ public class DD_Util {
     
     public static DD_Work_Order__c[] getWorkOrders(String[] ids){
         return [SELECT Id, Name, 
-                Object_Name__c,
+                Object_Type__c,
                 JSON_Required_Merge_Values__c,
                 JSON_Random_Value_Ranges__c, 
                 JSON_Random_Reference_Queries__c,
                 JSON_Random_Picklist_Values__c,
+                JSON_QA_Input__c,
+                JSON_QA_Output__c,
+                JSON_QA_Starting_Records__c,
                 Required_and_Merge_Fields_Only__c, 
                 Parent_Work_Order__c, 
                 Parent_Lookup_Field__c,
@@ -178,10 +239,11 @@ public class DD_Util {
                 Quantity_Per_Parent__c, 
                 Random_Range__c,
                 Random_Quantity_Per_Parent__c, 
-                Parent_Records_Created__c, 
                 Stack_Trace__c, 
                 Record_Type_Name__c, 
-                Status__c FROM DD_Work_Order__c WHERE Id IN :ids];
+                Work_Order_Type__c, 
+                QA_Process_Type__c
+                FROM DD_Work_Order__c WHERE Id IN :ids];
     }
         
 //
@@ -261,16 +323,16 @@ public class DD_Util {
     }
     
 //
-// loadValues
+// loadGeneratorValues
 //
-    public static ValueLoad loadValues(String workOrderId){
+    public static ValueLoad loadGeneratorValues(String workOrderId){
         ValueLoad load = new ValueLoad();
         Map<String, JSONParse> fieldMap;
         
-        DD_Work_Order__c workOrder = DD_Util.getWorkOrder(workOrderId);
+        DD_Work_Order__c workOrder = getWorkOrder(workOrderId);
         
         fieldMap = String.isBlank(workOrder.JSON_Required_Merge_Values__c) ? null : new JSONParse(workOrder.JSON_Required_Merge_Values__c)?.asMap();
-        
+               
         if (fieldMap != null){
             for (String fieldName : fieldMap.keySet()){
                 load.mergeValuesByField.put(
@@ -288,7 +350,7 @@ public class DD_Util {
                         load.randomValuesByField.put(
                             fieldName, 
                             DD_Util.getReferenceIds(
-                                DD_Util.getFieldDescribe(workOrder.Object_Name__c, fieldName), 
+                                DD_Util.getFieldDescribe(workOrder.Object_Type__c, fieldName), 
                                 DD_Util.getStringMapFromJson(fieldMap.get(fieldName).asMap()) 
                             )
                         );
@@ -303,7 +365,7 @@ public class DD_Util {
                         load.randomValuesByField.put(
                             fieldName, 
                             DD_Util.getIncludedPicklistValues(
-                               DD_Util.getFieldDescribe(workOrder.Object_Name__c, fieldName), 
+                               DD_Util.getFieldDescribe(workOrder.Object_Type__c, fieldName), 
                                fieldMap.get(fieldName).getStringValue() 
                             )
                         );
@@ -326,32 +388,99 @@ public class DD_Util {
         return load;
     }
     
+//
+// loadQaValues
+//
+    public static ValueLoad loadQaValues(String workOrderId){
+        ValueLoad load = new ValueLoad();
+        Map<String, JSONParse> inputMap, outputMap, recordMap;
+        String[] childWorkOrderIds = new List<Id>(new Map<Id, DD_Work_Order__c>([SELECT Id
+                                                                              FROM DD_Work_Order__c
+                                                                              WHERE Parent_Work_Order__c = :workOrderId]
+                                                                             ).keySet());
+   
+        DD_Work_Order__c[] workOrders = getWorkOrders(childWorkOrderIds);
+        
+        if (workOrders.isEmpty()){
+            workOrders = new List<DD_Work_Order__c>{ getWorkOrder(workOrderId) };
+        }
+        
+        for (Integer i = 0; i < workOrders.size(); i++){
+            DD_Work_Order__c workOrder = workOrders[i];
+            
+            try {
+                inputMap = String.isBlank(workOrder.JSON_QA_Input__c) ? null : new JSONParse(workOrder.JSON_QA_Input__c)?.asMap();
+                outputMap = String.isBlank(workOrder.JSON_QA_Output__c) ? null : new JSONParse(workOrder.JSON_QA_Output__c)?.asMap();
+            } catch(Exception e){
+                throw new DataDeskException('Error parsing QA input or output JSON : ' + workOrder.Name + ' : ' + e.getMessage());
+            }
+            
+            for (String reference : inputMap.keySet()){
+                recordMap = inputMap.get(reference)?.asMap();
+                Map<String, String> temp = new Map<String, String>();
+                for (String fieldName : recordMap.keySet()){
+                    temp.put(fieldName, recordMap.get(fieldName).getStringValue());
+                }
+                
+                load.qaInputRecords.add(new Map<String, QARecord>{ 
+                    reference => new QARecord(reference, workOrder.Object_Type__c, temp) 
+                 });
+            }
+            
+            for (String reference : outputMap.keySet()){
+                recordMap = outputMap.get(reference)?.asMap();
+                Map<String, String> temp = new Map<String, String>();
+                for (String fieldName : recordMap.keySet()){
+                    temp.put(fieldName, recordMap.get(fieldName).getStringValue());
+                }
+                
+                load.qaOutputRecords.add(new Map<String, QARecord>{ 
+                    reference => new QARecord(reference, workOrder.Object_Type__c, temp) 
+                });
+            }
+            
+            load.workOrderIds.add(workOrder.Id);
+        }
+        
+        return load;
+    }
+    
     public class ValueLoad { 
+        public String[] workOrderIds;
         public Map<String, List<String>> randomValuesByField, mergeValuesByField;
+        public List<Map<String, QARecord>> qaStartingRecords, qaInputRecords, qaOutputRecords;
         
         public ValueLoad(Map<String, List<String>> randomValuesByField, Map<String, List<String>> mergeValuesByField){
             this.randomValuesByField = randomValuesByField;
-            this.randomValuesByField = mergeValuesByField;
+            this.mergeValuesByField = mergeValuesByField;
+        }
+        
+        public ValueLoad(List<Map<String, QARecord>> qaInputRecords, List<Map<String, QARecord>> qaOutputRecords){
+            this.qaInputRecords = qaInputRecords;
+            this.qaOutputRecords = qaOutputRecords;
         }
         
         public ValueLoad(){
+            this.workOrderIds = new String[]{}; 
             this.randomValuesByField = new Map<String, List<String>>(); 
             this.mergeValuesByField = new Map<String, List<String>>();
+            this.qaInputRecords = new List<Map<String, QARecord>>();
+            this.qaOutputRecords = new List<Map<String, QARecord>>();
         }
     }
     
-    public static void deleteRecords(){
-        User[] users = [SELECT Id, ContactId FROM User];
-        String[] ids = new String[]{};
-            
-            for (User u : users){
-                ids.add(u.ContactId);
-            }
-            
-        delete [SELECT Id FROM Contact WHERE Id NOT IN :ids];
-        delete [SELECT Id FROM Account WHERE RecordType.Name = 'Household Account' AND Name != 'Sample Account for Entitlements' AND Id NOT IN (SELECT AccountId FROM Contact)];
-        delete [SELECT Id FROM Opportunity];
-        delete [SELECT Id FROM hed__Application__c];
-        delete [SELECT Id FROM Lead];
+    public class QARecord {
+        public String referenceId, objectName;
+        public Map<String, String> values;
+        
+        public QARecord(){
+            values = new Map<String, String>();
+        }
+        
+        public QARecord(String objectName, String referenceId, Map<String, String> values){
+            this.objectName = objectName;
+            this.referenceId = referenceId;
+            this.values = values;
+        }
     }
 }

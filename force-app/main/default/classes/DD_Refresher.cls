@@ -46,14 +46,19 @@ public class DD_Refresher {
                 requiredMergeValues = JSON.createGenerator(true),
                 randomValueRanges = JSON.createGenerator(true),
                 randomReferenceQueries = JSON.createGenerator(true),
-                randomPicklistValues = JSON.createGenerator(true);
+                randomPicklistValues = JSON.createGenerator(true),
+                qaInputOutput = JSON.createGenerator(true);
             
             requiredMergeValues.writeStartObject();
             randomValueRanges.writeStartObject();
             randomReferenceQueries.writeStartObject();
             randomPicklistValues.writeStartObject();
             
-            Map<String, Schema.SObjectField> fieldMap = DD_Util.getFieldMap(workOrder.Object_Name__c); 
+            qaInputOutput.writeStartObject();
+            qaInputOutput.writeFieldName(DD_Util.INPUT_RECORD_PREFIX + workOrder.Object_Type__c);
+            qaInputOutput.writeStartObject();
+            
+            Map<String, Schema.SObjectField> fieldMap = DD_Util.getFieldMap(workOrder.Object_Type__c); 
             List<String> fieldSet = new List<String>(fieldMap.keySet());
             fieldSet.sort();
             
@@ -81,13 +86,13 @@ public class DD_Refresher {
                      
                     String defaultValue;
                     if (fieldName == NAME || fieldName == COMPANY) { 
-                        defaultValue = 'DataDesk [[RAND]]';
+                        defaultValue = 'DataDesk';
                     } else if (fieldName == FIRST_NAME) {
                         defaultValue = 'Data';
                     }  else if (fieldName == LAST_NAME) {
-                        defaultValue = 'Desk [[RAND]]';
+                        defaultValue = 'Desk';
                     } else if (fieldName == DESCRIPTION) { 
-                        defaultValue = '[[RAND]] : [[DATE]] : [[TIME]] : [[MILS]]';
+                        defaultValue = 'Description';
                     } else if (fieldName == SUBJECT) {
                         defaultValue = 'DataDesk Rocks Too Hard, Plz Help';
                     }
@@ -105,6 +110,7 @@ public class DD_Refresher {
                         
                         if (defaultValue != null){
                             requiredMergeValues.writeStringField(properCaseName, defaultValue);
+                            qaInputOutput.writeStringField(properCaseName, defaultValue);
                         }               
                     } else {
                         if (!defaultTypeIgnores.contains(dataType)){
@@ -147,17 +153,24 @@ public class DD_Refresher {
                 }
             }
             
-            requiredMergeValues.writeEndObject();
-            workOrder.JSON_Required_Merge_Values__c = requiredMergeValues.getAsString();  
+            if (workOrder.Work_Order_Type__c == DD_Util.WORK_ORDER_TYPE_MASS_RECORD_GENERATION){
+                requiredMergeValues.writeEndObject();
+                workOrder.JSON_Required_Merge_Values__c = requiredMergeValues.getAsString();  
+                
+                randomValueRanges.writeEndObject();
+                workOrder.JSON_Random_Value_Ranges__c = randomValueRanges.getAsString();            
+                
+                randomReferenceQueries.writeEndObject();
+                workOrder.JSON_Random_Reference_Queries__c = randomReferenceQueries.getAsString();      
+                
+                randomPicklistValues.writeEndObject();
+                workOrder.JSON_Random_Picklist_Values__c = randomPicklistValues.getAsString();
+            } else if (workOrder.Work_Order_Type__c == DD_Util.WORK_ORDER_TYPE_AUTOMATED_QA) {
+                qaInputOutput.writeEndObject();
+                workOrder.JSON_QA_Input__c = qaInputOutput.getAsString();
+                workOrder.JSON_QA_Output__c = qaInputOutput.getAsString();
+            }
             
-            randomValueRanges.writeEndObject();
-            workOrder.JSON_Random_Value_Ranges__c = randomValueRanges.getAsString();            
-            
-            randomReferenceQueries.writeEndObject();
-            workOrder.JSON_Random_Reference_Queries__c = randomReferenceQueries.getAsString();      
-            
-            randomPicklistValues.writeEndObject();
-            workOrder.JSON_Random_Picklist_Values__c = randomPicklistValues.getAsString();
         }
         update workOrders;    
     }

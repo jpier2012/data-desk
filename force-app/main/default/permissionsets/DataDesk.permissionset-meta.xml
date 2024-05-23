@@ -66,6 +66,21 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+        <field>DD_Work_Order__c.JSON_QA_Input__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>DD_Work_Order__c.JSON_QA_Output__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>DD_Work_Order__c.JSON_QA_Starting_Records__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>DD_Work_Order__c.JSON_Random_Picklist_Values__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -96,12 +111,7 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>DD_Work_Order__c.Object_Name__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>true</editable>
-        <field>DD_Work_Order__c.Object_Role__c</field>
+        <field>DD_Work_Order__c.Object_Type__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -115,13 +125,18 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>false</editable>
-        <field>DD_Work_Order__c.Parent_Records_Created__c</field>
+        <editable>true</editable>
+        <field>DD_Work_Order__c.Parent_Work_Order__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>DD_Work_Order__c.Parent_Work_Order__c</field>
+        <field>DD_Work_Order__c.Passed_QA__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>DD_Work_Order__c.QA_Process_Type__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -156,12 +171,7 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>DD_Work_Order__c.Status__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>true</editable>
-        <field>DD_Work_Order__c.Total_Records_Created__c</field>
+        <field>DD_Work_Order__c.Work_Order_Type__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
