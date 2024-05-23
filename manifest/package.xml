@@ -40,6 +40,7 @@
     <types>
         <members>DD_Log_Record_Page1</members>
         <members>DD_Work_Order_Record_Page</members>
+        <members>Data_Dealer_UtilityBar</members>
         <name>FlexiPage</name>
     </types>
     <types>
