@@ -1,13 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomApplication xmlns="http://soap.sforce.com/2006/04/metadata">
-    <actionOverrides>
-        <actionName>Tab</actionName>
-        <content>Data_Desk_Dashboard</content>
-        <formFactor>Large</formFactor>
-        <skipRecordTypeSelect>false</skipRecordTypeSelect>
-        <type>Flexipage</type>
-        <pageOrSobjectType>standard-home</pageOrSobjectType>
-    </actionOverrides>
     <brand>
         <headerColor>#0070D2</headerColor>
         <shouldOverrideOrgTheme>false</shouldOverrideOrgTheme>
@@ -18,12 +10,13 @@
     <isNavTabPersistenceDisabled>false</isNavTabPersistenceDisabled>
     <label>DataDesk</label>
     <navType>Standard</navType>
-    <tabs>standard-home</tabs>
     <tabs>standard-Account</tabs>
+    <tabs>standard-Lead</tabs>
     <tabs>standard-Contact</tabs>
     <tabs>standard-Opportunity</tabs>
+    <tabs>standard-Case</tabs>
     <tabs>DD_Work_Order__c</tabs>
     <tabs>DD_Log__c</tabs>
     <uiType>Lightning</uiType>
-    <utilityBar>Data_Dealer_UtilityBar</utilityBar>
+    <utilityBar>DataDesk_UtilityBar</utilityBar>
 </CustomApplication>
