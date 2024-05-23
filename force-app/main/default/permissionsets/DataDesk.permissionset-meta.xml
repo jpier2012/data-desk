@@ -174,21 +174,6 @@
         <field>DD_Work_Order__c.Work_Order_Type__c</field>
         <readable>true</readable>
     </fieldPermissions>
-    <fieldPermissions>
-        <editable>true</editable>
-        <field>DataDesk_Name_Value__c.Compound_Field_Names__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>true</editable>
-        <field>DataDesk_Name_Value__c.Is_Compound_Name__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>true</editable>
-        <field>DataDesk_Name_Value__c.Seeded__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
     <flowAccesses>
         <enabled>true</enabled>
         <flow>DataDesk_Process_Work_Order</flow>
@@ -228,15 +213,6 @@
     </objectPermissions>
     <objectPermissions>
         <allowCreate>true</allowCreate>
-        <allowDelete>true</allowDelete>
-        <allowEdit>true</allowEdit>
-        <allowRead>true</allowRead>
-        <modifyAllRecords>true</modifyAllRecords>
-        <object>DataDesk_Name_Value__c</object>
-        <viewAllRecords>true</viewAllRecords>
-    </objectPermissions>
-    <objectPermissions>
-        <allowCreate>true</allowCreate>
         <allowDelete>false</allowDelete>
         <allowEdit>false</allowEdit>
         <allowRead>true</allowRead>
@@ -254,10 +230,6 @@
     </tabSettings>
     <tabSettings>
         <tab>DD_Work_Order__c</tab>
-        <visibility>Visible</visibility>
-    </tabSettings>
-    <tabSettings>
-        <tab>DataDesk_Name_Value__c</tab>
         <visibility>Visible</visibility>
     </tabSettings>
     <userPermissions>
