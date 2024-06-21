@@ -209,6 +209,14 @@ public class DD_Generator {
                     
                     replacementValue = name[1];
                     
+                } else if (match.contains('TODAY')){
+                    
+                    replacementValue = String.valueOf(Date.today());
+                    
+                } else if (match.contains('NOW')){
+                    
+                    replacementValue = String.valueOf(DateTime.now().format('yyyy-MM-dd HH:mm'));
+                    
                 } else if (match.contains('COMMENT')){
                     
                     replacementValue = getValueAtRandomIndex(comments);

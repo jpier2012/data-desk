@@ -140,6 +140,16 @@
                     <name>uiBehavior</name>
                     <value>none</value>
                 </fieldInstanceProperties>
+                <fieldItem>Record.Parent_ID_Field__c</fieldItem>
+                <identifier>RecordParent_ID_Field__cField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
                 <fieldItem>Record.Parent_Lookup_Field__c</fieldItem>
                 <identifier>RecordParent_Lookup_Field_cField</identifier>
             </fieldInstance>

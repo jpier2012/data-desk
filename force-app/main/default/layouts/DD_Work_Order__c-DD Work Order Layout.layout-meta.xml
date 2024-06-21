@@ -77,6 +77,10 @@
                 <behavior>Edit</behavior>
                 <field>Field_JSON__c</field>
             </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>Parent_ID_Field__c</field>
+            </layoutItems>
         </layoutColumns>
         <layoutColumns>
             <layoutItems>

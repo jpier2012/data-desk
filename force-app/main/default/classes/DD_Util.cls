@@ -236,6 +236,7 @@ public class DD_Util {
                     JSON_Random_Picklist_Values__c,
                     Discrete_Values_Only__c, 
                     Parent_Work_Order__c, 
+                    Parent_ID_Field__c,
                     Parent_Lookup_Field__c,
                     Base_Quantity__c, 
                     Quantity_Per_Parent__c, 

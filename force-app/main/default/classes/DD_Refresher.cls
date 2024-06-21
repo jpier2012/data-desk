@@ -90,7 +90,7 @@ public class DD_Refresher {
             discreteValues.writeStringField(properCaseName, '[[LNAME]]');
             
         } else {
-            defaultValue = 'DataDesk';
+            defaultValue = 'DataDesk [[NOW]]';
         }
         
         return defaultValue;

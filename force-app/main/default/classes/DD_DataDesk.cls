@@ -44,12 +44,35 @@ global class DD_DataDesk implements Database.batchable<sObject>, Database.Statef
         if (recordIdsByWorkOrderId != null){
         	this.recordIdsByWorkOrderId = recordIdsByWorkOrderId; 
         	parentRecordIds = recordIdsByWorkOrderId.get(workOrder.Parent_Work_Order__c);
+            
+            String parentIdField = workOrder.Parent_ID_Field__c;
+            
+            if (String.isNotBlank(parentIdField) && parentIdField != 'Id'){
+                try {
+                    
+                    sObject[] records = Database.query(
+                        'SELECT ' + parentIdField + 
+                        ' FROM ' + workOrder.Object_API_Name__c + 
+                        ' WHERE Id IN ' + String.join(parentRecordIds, ', ')
+                    );
+                    
+                    String[] temp = new String[]{};
+                        
+                    for (sObject record : records){
+                        temp.add('' + record.get(parentIdField));
+                    }
+                    
+                    parentRecordIds = temp;
+                } catch(Exception e){
+            		handleError('Error querying parent records for custom ID field.', e);
+                }
+            }
         } else {
             parentRecordIds = new String[]{};
         }
         
         this.recordIdsByWorkOrderId = new Map<String, List<String>>{
-                workOrder.Id => new List<String>()
+        	workOrder.Id => new List<String>()
         };
         
         if (parentLog == null){
