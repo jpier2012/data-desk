@@ -3,6 +3,7 @@
     <fullName>Random_Quantity_Per_Parent__c</fullName>
     <defaultValue>false</defaultValue>
     <externalId>false</externalId>
+    <inlineHelpText>When checked, this will generate a random number of records per parent, within the pipe-delimited range found in the field &quot;Random Range&quot;.</inlineHelpText>
     <label>Random Quantity Per Parent</label>
     <trackTrending>false</trackTrending>
     <type>Checkbox</type>

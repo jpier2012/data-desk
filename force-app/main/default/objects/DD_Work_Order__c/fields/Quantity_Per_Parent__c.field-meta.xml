@@ -3,6 +3,7 @@
     <fullName>Quantity_Per_Parent__c</fullName>
     <defaultValue>1</defaultValue>
     <externalId>false</externalId>
+    <inlineHelpText>This is the number of records generated per record created by the parent work order. If &quot;Random Quantity Per Parent&quot; is checked and a number range entered in a pipe-delimited format, e.g. &quot;0|3&quot;, a number of children within that range will be created and assigned to each parent (range is inclusive at both ends).</inlineHelpText>
     <label>Quantity Per Parent</label>
     <precision>18</precision>
     <required>false</required>

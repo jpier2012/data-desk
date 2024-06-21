@@ -2,9 +2,10 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>JSON_Random_Reference_Queries__c</fullName>
     <externalId>false</externalId>
+    <inlineHelpText>This provides a JSON scaffolding to build queries to populate reference fields. When JSON is refreshed, these are used to populated the default values for required fields.</inlineHelpText>
     <label>JSON) Random Reference Queries</label>
     <length>131072</length>
     <trackTrending>false</trackTrending>
     <type>LongTextArea</type>
-    <visibleLines>5</visibleLines>
+    <visibleLines>10</visibleLines>
 </CustomField>

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
-    <fullName>Log_Type__c</fullName>
+    <fullName>Collection_Name__c</fullName>
     <externalId>false</externalId>
-    <formula>IF(NOT(ISBLANK(DD_Work_Order__c)), &quot;Generator&quot;, &quot;QA&quot;)</formula>
+    <formula>DD_Work_Order__r.Collection_Name__c</formula>
     <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
-    <label>Log Type</label>
+    <label>Collection Name</label>
     <required>false</required>
     <trackTrending>false</trackTrending>
     <type>Text</type>

@@ -21,20 +21,17 @@
     <types>
         <members>DD_Work_Order__c</members>
         <members>DD_Log__c</members>
-        <members>DD_Work_Order_Log__c</members>
         <name>CustomTab</name>
     </types>
     <types>
         <members>DD_Work_Order__c</members>
         <members>DD_Log__c</members>
-        <members>DD_Work_Order_Log__c</members>
         <members>Platform_Toast__e</members>
         <name>CustomObject</name>
     </types>
     <types>
         <members>DD_Work_Order__c-DD Work Order Layout</members>
         <members>DD_Log__c-DD Log Layout</members>
-        <members>DD_Work_Order_Log__c-DD Work Order Log Layout</members>
         <name>Layout</name>
     </types>
     <types>
@@ -47,6 +44,10 @@
         <members>DataDesk_Refresh_Work_Order_JSON</members>
         <members>DataDesk_Process_Work_Order</members>
         <name>Flow</name>
+    </types>    
+    <types>
+        <members>Object_API_Names</members>
+        <name>GlobalValueSet</name>
     </types>
     <types>
         <members>DataDesk</members>

@@ -3,6 +3,7 @@
     <fullName>Parent_Work_Order__c</fullName>
     <deleteConstraint>SetNull</deleteConstraint>
     <externalId>false</externalId>
+    <inlineHelpText>This is the work order that represents a parent object of the object being created through the current work order. This work order represents the object populated through the Parent Lookup Field.</inlineHelpText>
     <label>Parent Work Order</label>
     <referenceTo>DD_Work_Order__c</referenceTo>
     <relationshipLabel>Child Work Orders</relationshipLabel>

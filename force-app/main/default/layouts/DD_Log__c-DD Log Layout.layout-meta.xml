@@ -21,6 +21,26 @@
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
+                <field>Records_Generated__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>DD_Work_Order__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>Parent_Log__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>Is_Parent_Log__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Readonly</behavior>
+                <field>Collection_Name__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Readonly</behavior>
                 <field>Log_Type__c</field>
             </layoutItems>
         </layoutColumns>
@@ -75,11 +95,7 @@
     </layoutSections>
     <relatedLists>
         <fields>NAME</fields>
-        <fields>DD_Work_Order__c.Record_Type_Name__c</fields>
-        <fields>DD_Work_Order__c.Quantity_Per_Parent__c</fields>
-        <fields>DD_Work_Order__c.Object_Type__c</fields>
-        <fields>DD_Work_Order__c.Parent_Object__c</fields>
-        <relatedList>DD_Work_Order_Log__c.Log__c</relatedList>
+        <relatedList>DD_Log__c.Parent_Log__c</relatedList>
     </relatedLists>
     <showEmailCheckbox>false</showEmailCheckbox>
     <showHighlightsPanel>false</showHighlightsPanel>

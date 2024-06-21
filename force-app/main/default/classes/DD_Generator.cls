@@ -1,6 +1,6 @@
 public class DD_Generator {
-    public class Outputs { 
-        @InvocableVariable(label='First Name') 
+    public class Outputs {  
+        @InvocableVariable(label='First Name')
         public String firstName;
         
         @InvocableVariable(label='Last Name')
@@ -20,9 +20,16 @@ public class DD_Generator {
 //
 // getRandomName
 //
+    public static String getRandomComment() {
+        // generate random index between 0 and the number of celebrity names - 1
+        return getValueAtRandomIndex(comments);
+    }
+//
+// getRandomName
+//
     public static String[] getRandomName() {
         // generate random index between 0 and the number of celebrity names - 1
-        return DD_Util.split(celebrityNames[Math.round(Math.random() * (celebrityNames.size() - 1))]);
+        return DD_Util.split(getValueAtRandomIndex(celebrityNames));
     }
 //
 // getRandomDate
@@ -35,15 +42,18 @@ public class DD_Generator {
         try {
             range = DD_Util.split(rangeString);
             startDate = Date.valueOf(range[0]);
-            endDate = Date.valueOf(range[1]);     
-        	daysBetween = startDate.daysBetween(endDate);
-            addDays = startDate == endDate ? 0 : Math.round(Math.random() * daysBetween);
             
+            if (range.size() > 1){
+            	endDate = Date.valueOf(range[1]);     
+        		daysBetween = startDate.daysBetween(endDate);
+            	addDays = startDate == endDate ? 0 : Math.round(Math.random() * daysBetween);
+        		return startDate.addDays(addDays);
+            } else {
+                return startDate;
+            }
         } catch(Exception e){
             throw new DataDeskException('Error parsing date parameters : ' + rangeString, e);
         }
-        
-        return startDate.addDays(addDays);
     }
 //
 // getRandomDateTime
@@ -92,19 +102,36 @@ public class DD_Generator {
         }
     }
 //
-// getRandomIndex
+// getValueAtRandomIndex
 //
-    public static String getRandomIndex(String[] stringList){
+    public static String getValueAtRandomIndex(String[] stringList){
         if (!stringList?.isEmpty()){
-        	return stringList[(Integer)getRandomDecimal(0,stringList.size() - 1, 0)];
+        	return stringList[getRandomIndex(stringList)];
         } else {
-            return null;
+            return '';
         }
     }
 //
-// castOrGenerateValue
+// getRandomIndex
+//
+    public static Integer getRandomIndex(Object[] oList){
+        Integer returnVal;
+        try {
+            returnVal = (Integer)getRandomDecimal(0, oList.size() - 1, 0);
+        } catch(Exception e){
+            throw new DataDeskException('Error calculating random index : getRandomIndex : ' + oList);
+        }
+        return returnVal;
+    }
+//
+// setValue
 //   
-    public static Object getValue(Schema.DescribeFieldResult fieldDescribe, List<String> valueList, Object value){
+
+    public static void setValue(sObject record, Schema.DescribeFieldResult fieldDescribe, String value){
+        setValue(record, fieldDescribe, new List<String>{ value });
+    }
+    
+    public static void setValue(sObject record, Schema.DescribeFieldResult fieldDescribe, List<String> valueList){
         
         String 
             dataType = fieldDescribe.getType().name(),
@@ -121,82 +148,93 @@ public class DD_Generator {
 				|| dataType == DD_Util.DISPLAY_TYPE_MULTIPICKLIST
 				|| dataType == DD_Util.DISPLAY_TYPE_REFERENCE;
         
+        Decimal value;
+        
         try {
             if (isList){
-                
-                value = value != null ? value : getRandomIndex(valueList);
-                return String.valueOf(value);
+            	record.put(fieldName, getValueAtRandomIndex(valueList));
                 
             } else if (dataType == DD_Util.DISPLAY_TYPE_BOOLEAN){
                 
-                value = value != null ? value : getRandomDecimal(0,1,0);
-                return Boolean.valueOf(value);
+                record.put(fieldName, Boolean.valueOf(getRandomDecimal(0,1,0)));
                 
-            }else if (dataType == DD_Util.DISPLAY_TYPE_DATE){
-                
-                return value != null ? Date.valueOf('' + value) : getRandomDate(valueList[0]);
+            } else if (dataType == DD_Util.DISPLAY_TYPE_DATE){
+                record.put(fieldName, getRandomDate(valueList[0]));
                 
             } else if (dataType == DD_Util.DISPLAY_TYPE_DATETIME){
                 
-                return value != null ? DateTime.valueOf('' + value) : getRandomDateTime(valueList[0]);
+                record.put(fieldName, getRandomDateTime(valueList[0]));
                 
             } else if (dataType == DD_Util.DISPLAY_TYPE_PHONE){
                 
-                value = value != null ? value : getRandomDecimal(10000000000L,19999999999L,0);
-                return String.valueOf(value);
+                record.put(fieldName, String.valueOf(getRandomDecimal(10000000000L,19999999999L,0)));
                 
 			} else if (isNumber){
                 
-                value = value != null ? value : getRandomDecimal(valueList[0]);
+                value = getRandomDecimal(valueList[0]);
                 
                 if (dataType == DD_Util.DISPLAY_TYPE_INTEGER){
-                    return Integer.valueOf(value);
+                    record.put(fieldName, Integer.valueOf(value));
                 } else if (dataType == DD_Util.DISPLAY_TYPE_DOUBLE 
                            || dataType == DD_Util.DISPLAY_TYPE_CURRENCY){
-                	return Double.valueOf(value);
+                	record.put(fieldName, Double.valueOf(value));
                 } else {
-                	return (Decimal)value; 
+                	record.put(fieldName, (Decimal)value); 
                 }               
                 
+            } else {
+                String stringValue = valueList[0];
+                
+                if (fieldName.contains('Email'))
+                    stringValue = stringValue.replace(' ', '_').replace(',', '_');
+                
+                record.put(fieldName, getMergeValue(record, stringValue));
             }
+            
         } catch(Exception e){
-            throw new DataDeskException('Error casting or generating value : ' + fieldName + ' : ' + value, e);
+            throw new DataDeskException('Error setting object value : ' + fieldName + ' : ' + value, e);
         }
-        
-        return value;
     }
 
-    public static String getMergedValue(sObject record, String input){
-        String output = input;
-        for (String match : getMergeFields(output)){
+    public static String getMergeValue(sObject record, String input){
+        String output = input, replacementValue;
+        String[] name = getRandomName();
+        
+        for (String match : parseMergeFields(output)){
             try {
-                switch on match {
-                    when 'DATE' {
-                        output = output.replace('[[DATE]]', '' + Date.today());
-                    }
-                    when 'TIME' {
-                        output = output.replace('[[TIME]]', DateTime.now().format('hh:mm:ss'));
-                    }
-                    when 'MILS' {
-                        output = output.replace('[[MILS]]', '' + System.currentTimeMillis());
-                    }
-                    when 'RAND' {
-                        Decimal rand = getRandomDecimal(0, 10000000000L, 0);
-                        output = output.replace('[[RAND]]', '' + rand);
-                    }
-                    when else {
-                        output = output.replace('[[' + match + ']]', record.get(match) + '');
-                    }
+                if (match.contains('FNAME')){
+                    replacementValue = name[0];
+                    
+                } else if (match.contains('LNAME')){
+                    
+                    replacementValue = name[1];
+                    
+                } else if (match.contains('COMMENT')){
+                    
+                    replacementValue = getValueAtRandomIndex(comments);
+                    
+                } else if (match.contains('TITLE')){
+                    
+                    replacementValue = getValueAtRandomIndex(titles);
+                    
+                } else if (match.contains('RAND')){
+                    
+                    replacementValue = String.valueOf(getRandomDecimal(match.replace('RAND|', '')));
+                    
+                } else {
+                	replacementValue = String.valueOf(record.get(match));
                 }
+                
+                output = output.replace('[[' + match + ']]', replacementValue);
             } catch(Exception e){
-                throw new DataDeskException('Error parsing merge field', e);
+                throw new DataDeskException('Error parsing merge field. Check formatting. Match : ' + match + ' : input : ' + input, e);
             }
         }
         
         return output;
     }
     
-    private static List<String> getMergeFields(String input) {
+    public static List<String> parseMergeFields(String input) {
         List<String> matches = new List<String>();
         Pattern pattern = Pattern.compile('\\[\\[(.*?)\\]\\]');
         Matcher matcher = pattern.matcher(input);
@@ -229,4 +267,21 @@ public class DD_Generator {
             'Tyler|Perry','|Eminem','|Cher','|Bono','|Rihanna','|Adele','Jimmers|Dudeman','Ronald|Washington',
             'Chip|Digster','Saucy|Thompson','Theresa|Recording','Marcus|Unread','Stella|Artois','Alexander|The Great'
      };
+         
+    public static final List<String> comments = new List<String>{
+        'I need a vacation', 'I\'m getting too old for this', 'Where did I put my keys?', 
+            'Make sure you absolutely never, under any circumstances', 'The suspense is killing me', 
+            'The silence is deafening', 'I need a drink', 'Please don\'t break', 'If you need me, I\'ll be in the woods',
+            'Oy vey!', 'Dios mio', 'Uh oh', 'Yowza', 'Cowabunga', 'Surf\'s up', 'Here we go', 'WHOA', 'Saddle up', 'Buckle up',
+            'Oh gawd', '*Runs away*', 'Take cover!!', 'Nobody cares', 'Oh, the humanity!', 'I live for the drama',
+            'YOLO', 'Time for lunch', '10/10 will do again', 'Baby Einstein Approved', 'I\'m going to regret this',
+            'Welp, it\'s over', 'Let\'s try and be professional, here', 'Please try to contain your excitement', 
+            '*Holds breath*', 'HOLD', 'Brace yourself', 'Check yourself before you wreck yourself', 'Don\'t start none, won\'t be none',
+            'The cat\'s out of the bag!', 'My dad could beat up your dad', 'I\'m so cold', 'Ok let\'s all just try and chill out', 'EVERYONE REMAIN CALM'
+     };    
+         
+    public static final List<String> titles = new List<String>{
+        'Doctor', 'Professor', 'The Man with the Plan', 'Vice President', 
+        'The Amazing', 'The Mysterious', 'The Great', 'The Real'
+     };         
 }

@@ -12,72 +12,99 @@ global class DD_DataDesk implements Database.batchable<sObject>, Database.Statef
         
         Database.executeBatch(new DD_DataDesk(inputs[0].workOrderId, null, null)); 
     }
-    public String[] 
-        recordIds = new String[]{},
-        parentRecordIds = new String[]{};
-            
-    public Map<String, List<String>> 
-            randomValuesByField = new Map<String, List<String>>(),
-            mergeValuesByField = new Map<String, List<String>>();
-            
+    
+    public String[] parentRecordIds, queuedWorkOrderIds;
+    public Map<String, List<String>> recordIdsByWorkOrderId, childWorkOrdersByParentId; 
+    
     public Long startMillis, stopMillis;
     public Integer parentRecordIndex = 0, totalRecords = 0;
     
-    public String recordTypeId, logId, stackTrace = '';
     public Map<String, String> errors = new Map<String, String>(), traceMap = new Map<String, String>();
     public DD_Work_Order__c workOrder;
-    public DD_Util.ValueLoad load;
+    public DD_Util.DDValueLoad load;
+    public DD_Log__c parentLog, workOrderLog;
     
     sObject[] objectsToProcess = new sObject[]{};
-    
+        
     //
 	// Constructor   
     //
-    public DD_DataDesk(String workOrderId, String existingLogId, String[] parentRecordIds){ 
+    public DD_DataDesk(String workOrderId, DD_Log__c parentLog, Map<String, List<String>> recordIdsByWorkOrderId){ 
+        // Queue work order records
+        // Take all those in the collection without parents, add to the beginning of the list
+        // Find all junction objects, add to the end of the list
+        // Find children of junction objects and parents
+        
         this.startMillis = System.currentTimeMillis();
         workOrder = DD_Util.getWorkOrder(workOrderId);
         
         if (workOrder == null)
             throw new DataDeskException('No Work Order record found.');
         
-        if (parentRecordIds != null)
-        	this.parentRecordIds = parentRecordIds; 
-        
-        String recordTypeId = [SELECT Id, DeveloperName, Name FROM RecordType 
-                               WHERE SobjectType = :workOrder.Object_Type__c
-                               AND Name = :workOrder.Record_Type_Name__c
-                               LIMIT 1]?.Id;
-        
-        DD_Log__c log = getLog(existingLogId);
-        
-        if (log == null){
-        	log = new DD_Log__c();
-        	log.Start_Timestamp__c = DateTime.newInstance(this.startMillis);
-        	log.Status__c = 'Processing';
-            insert log;
+        if (recordIdsByWorkOrderId != null){
+        	this.recordIdsByWorkOrderId = recordIdsByWorkOrderId; 
+        	parentRecordIds = recordIdsByWorkOrderId.get(workOrder.Parent_Work_Order__c);
+        } else {
+            parentRecordIds = new String[]{};
         }
         
-        this.logId = log.Id;
+        this.recordIdsByWorkOrderId = new Map<String, List<String>>{
+                workOrder.Id => new List<String>()
+        };
+        
+        if (parentLog == null){
+            DateTime startTime = DateTime.newInstance(this.startMillis);
+        	parentLog = new DD_Log__c(Name = (workOrder.Collection_Name__c + ' ' + startTime.format('MM-dd hh:mm:ss')).left(80), 
+                                      Status__c = 'Processing',
+                                      Start_Timestamp__c = startTime,
+                                      Is_Parent_Log__c = true,
+                             		  DD_Work_Order__c = workOrder.Id, 
+                                      Records_Generated__c = 0);
+            insert parentLog;
+        }
+        
+        this.parentLog = parentLog;
+        
+        try {
+        	this.load = DD_Util.loadGeneratorValues(workOrder.Id);
+        } catch(Exception e){
+            handleError('Error loading values. Check JSON.', e);
+        }
+        
+        Map<String, RecordType> recordTypes = DD_Util.getRecordTypes(workOrder.Object_API_Name__c);
+        
+        for (String recTypeName : recordTypes.keySet()){
+            RecordType recType = recordTypes.get(recTypeName);
+            
+            if (recType.DeveloperName == workOrder.Record_Type_API_Name__c){
+                this.load.recordType = recType;
+                trace('RecordType.Name', recType.DeveloperName);
+            }
+        }
 
-        DD_Work_Order_Log__c workOrderLog = new DD_Work_Order_Log__c();
-        workOrderLog.Work_Order__c = workOrder.Id;
-        workOrderLog.Log__c = log.Id;
-        insert workOrderLog;
+        if (String.isNotBlank(workOrder.Record_Type_API_Name__c) && this.load.recordType == null){
+            InvokeToast.launch('error', 
+                               'sticky', 
+                               'Record Type Not Found', 
+                               'Available record types : ' + new List<String>(recordTypes.keySet()));
+            
+            throw new DataDeskException('No record type found : ' + workOrder.Record_Type_API_Name__c);
+        }
     }
     //
 	// Start   
     //
     public Iterable<sObject> start(Database.BatchableContext BC){
-        Integer startCount = parentRecordIds.size() > 0 ? parentRecordIds.size() : (Integer)workOrder.Base_Quantity__c;
+
+        InvokeToast.launch('warning', 
+                           'dismissible', 
+                           workOrder.Name + ' Batch Job Started!', 
+                           DD_Generator.getRandomComment());
+        
+        Integer startCount = parentRecordIds?.size() > 0 ? parentRecordIds.size() : (Integer)workOrder.Base_Quantity__c;
         
         try {
-            load = DD_Util.loadGeneratorValues(workOrder.Id);
-        } catch(Exception e){
-            handleError('Error loading values. Check JSON : ' + e.getCause() + ' : ' + e.getMessage());
-        }
-            
-        try {
-            return new DD_Util.CustomIterable(startCount, workOrder.Object_Type__c);
+            return new CustomIterable(startCount, workOrder.Object_API_Name__c, load.recordType?.Id);
         } catch(Exception e){
             throw new DataDeskException('Custom Iterable issue : ' + e.getMessage());
         }
@@ -99,7 +126,7 @@ global class DD_DataDesk implements Database.batchable<sObject>, Database.Statef
         if (results != null){
             for (Database.SaveResult sr : results){
                 if (sr.isSuccess()) {
-                    recordIds.add(sr.getId());
+                    recordIdsByWorkOrderId.get(workOrder.Id).add(sr.getId());
                 } else {
                     handleError('Database processing error(s) : ' + String.join(sr.getErrors(), ','));
                 }
@@ -111,115 +138,108 @@ global class DD_DataDesk implements Database.batchable<sObject>, Database.Statef
 	// End   
     //
     public void finish(Database.BatchableContext BC) {
-        workOrder.Stack_Trace__c = stackTrace.left(130000);
-        update workOrder;
+       AsyncApexJob job = [SELECT Id, Status, ExtendedStatus, NumberOfErrors, JobItemsProcessed, TotalJobItems, CreatedBy.Email
+                           FROM AsyncApexJob 
+                           WHERE Id = :BC.getJobId()];
+        
+        stopMillis = System.currentTimeMillis();
+        workOrderLog = newChildLog();
+        
+        String 
+            traceString = '', errorString = '', firstError = '', 
+            jobError = job.ExtendedStatus,
+            toastStyle, toastMode, toastTitle, toastMessage;
+        
+        Integer errorCount = job.NumberOfErrors > 0 ? job.NumberOfErrors : errors.keySet().size();
+        
+        if (errorCount > 0) {   
+            workOrderLog.Status__c = DD_Util.JOB_STATUS_FAILED;
+            
+            if (job.ExtendedStatus != null){
+                firstError = job.ExtendedStatus;
+            } else {
+                firstError = new List<String>(errors.keySet())[0];
+            }
+            
+            for (String error : errors.keySet()){
+                errorString += error + ' :\n' + errors.get(error) + '\n\n';
+            }
+                
+            toastStyle = 'error';
+            toastMode = 'sticky';
+            toastTitle = workOrder.Name + ' Batch Job Failed!';
+            toastMessage = 'Errors : ' + errorCount + ' : First : ' + firstError;
+            
+        } else {
+            workOrderLog.Status__c = DD_Util.JOB_STATUS_COMPLETED;            
+            String recordTypeString = String.isBlank(workOrder.Record_Type_API_Name__c) ? '' : workOrder.Record_Type_API_Name__c + ' ';
+            
+            toastStyle = 'success';
+            toastMode = 'dismissible';
+            toastTitle = workOrder.Name + ' Batch Job Complete!';
+            toastMessage = recordTypeString + workOrder.Object_API_Name__c + ' : ' + totalRecords + ' records created.';
+        }
+        
+        traceString += 'Sample :\n';
+        
+        for (String fieldName : traceMap.keySet()){
+            traceString += '-> ' + fieldName + ' : ' + traceMap.get(fieldName) + '\n';
+        }
+
+        workOrderLog.Stack_Trace__c = traceString.left(130000);
+        workOrderLog.Errors__c = errorString.left(130000);
+        workOrderLog.Stop_Timestamp__c = DateTime.newInstance(stopMillis);
+        workOrderLog.Time_Elapsed_s__c = (((Decimal)stopMillis - (Decimal)startMillis) / (Decimal)1000).setScale(3);
+        workOrderLog.Records_Generated__c = totalRecords;
+        insert workOrderlog;
+
+        InvokeToast.launchWithUrl(toastStyle, toastMode, toastTitle, toastMessage, workOrderLog.Id);
         
         DD_Work_Order__c[] children = [SELECT Id FROM DD_Work_Order__c 
                                        WHERE Parent_Work_Order__c = :workOrder.Id];
-        
-        // Select the work orders that have the same parent workorder,
-        // That are NOT the existing work order
-        // and see if they have children
-        DD_Work_Order__c[] siblingsChildren = [SELECT Id FROM DD_Work_Order__c 
-                                               WHERE Parent_Work_Order__r.Parent_Work_Order__c = :workOrder.Parent_Work_Order__c
-                                               AND Parent_Work_Order__r.Parent_Work_Order__c != null 
-                                               AND Parent_Work_Order__c != :workOrder.Id];
-        
+        if (!children.isEmpty()){
+            for (DD_Work_Order__c child : children){
                 
-        String recordTypeString = String.isBlank(workOrder.Record_Type_Name__c) ? '' : workOrder.Record_Type_Name__c + ' ';
-        
-        DD_Log__c log = getLog(logId);
-        
-        if (log == null){
-            throw new DataDeskException('Log is null : logId : ' + logId);
-        }
-        
-        String errorString = '';
-        if (!errors.isEmpty()) {   
-            stopMillis = System.currentTimeMillis();
-            log.Stop_Timestamp__c = DateTime.newInstance(stopMillis);
-            log.Status__c = 'Failed';
-            log.Time_Elapsed_s__c = (((Decimal)stopMillis - (Decimal)startMillis) / (Decimal)1000).setScale(3);
-            
-            for (String error : errors.keySet()){
-                errorString += error + '\n:\n' + errors.get(error);
-            }
-            
-            if (log.Errors__c == 'null' || log.Errors__c == null){
-                log.Errors__c = '';
-            }
-            
-            log.Errors__c = (log.Errors__c + '\n\n' + errorString).left(130000);
-            update log;
-            
-            InvokeToast.launch('error',
-                               'sticky', 
-                               workOrder.Name + ' Batch Job Failed!', 
-                               'Total errors : ' + errors.keySet().size() + ' : ' + new List<String>(errors.keySet()));
-        } else {
-            String sampleRecord = '';
-            
-            for (String fieldName : traceMap.keySet()){
-                sampleRecord += '-> ' + fieldName + ' : ' + traceMap.get(fieldName) + '\n';
-            }
-            
-            if (log.Stack_Trace__c == 'null' || log.Stack_Trace__c == null){
-                log.Stack_Trace__c = '';
-            }
-            
-            log.Stack_Trace__c = (log.Stack_Trace__c + '\n\n' + 
-                workOrder.Object_Type__c + ' : '+  totalRecords + ' records created.\n\n' +
-                'Sample :\n' + sampleRecord + '\n').left(130000);
-            
-            if (!children.isEmpty()){
-                update log;
-                for (DD_Work_Order__c child : children){
-                    Database.executeBatch(new DD_DataDesk(child.Id, log.Id, recordIds));
+                if (recordIdsByWorkOrderId.get(child.Id) == null){
+                    Database.executeBatch(
+                        new DD_DataDesk(
+                            child.Id, 
+                            parentLog, 
+                            recordIdsByWorkOrderId
+                        )
+                    );
                 }
-            } else if (siblingsChildren.isEmpty()){
-                stopMillis = System.currentTimeMillis();
-                log.Stop_Timestamp__c = DateTime.newInstance(stopMillis);
-                log.Status__c = 'Complete';
-                log.Time_Elapsed_s__c = (((Decimal)stopMillis - (Decimal)startMillis) / (Decimal)1000).setScale(3);
             }
-            update log;
-            InvokeToast.launch('success', 
-                              'dismissible', 
-                               workOrder.Name + ' Batch Job Complete!', 
-                               recordTypeString + workOrder.Object_Type__c + ' : ' + totalRecords + ' records created.');
-        }
-    }
-    
-    //
-	// Util   
-    //
-    public void trace(String fieldName, String value){
-        stackTrace = (stackTrace + '*** ' + fieldName + ' : ' + value + '\n').left(130000);
-        traceMap.put(fieldName, value);
-    }
-    
-    public DD_Log__c getLog(String logId){
-        DD_Log__c[] logs = [SELECT Id, Stack_Trace__c, Start_Timestamp__c, Stop_Timestamp__c, Errors__c FROM DD_Log__c WHERE Id = :logId];
-        
-        if (logs.isEmpty()){
-            return null;
         } else {
-            return logs[0];
+            parentLog.Stop_Timestamp__c = DateTime.newInstance(stopMillis);
+            parentLog.Time_Elapsed_s__c = (((Decimal)stopMillis - (Decimal)startMillis) / (Decimal)1000).setScale(3);
+            parentLog.Status__c = DD_Util.JOB_STATUS_COMPLETED;
+            
+            String errors = '';
+            Integer totalRecordCount = 0;
+            DD_Log__c[] childLogs = [SELECT Id, Records_Generated__c, Errors__c, Status__c, DD_Work_Order__r.Name 
+                                     FROM DD_Log__c WHERE Parent_Log__c = :parentLog.Id];
+            
+            for (DD_Log__c log : childLogs){
+                errors += log.DD_Work_Order__r.Name + ' : ' + log.Errors__c + '\n\n';
+                totalRecordCount += (Integer)log.Records_Generated__c;
+                if (log.Status__c == DD_Util.JOB_STATUS_FAILED)
+                    parentLog.Status__c = DD_Util.JOB_STATUS_FAILED;
+                
+            }
+            parentLog.Errors__c = errors;
+            parentLog.Records_Generated__c = totalRecordCount;
+            
+            update parentLog;
         }
     }
-    
-    private void handleError(String message, Exception e){
-        errors.put(workOrder.Object_Type__c + ' : ' + message + ' : ' + e.getMessage(),
-                   e.getCause() + ' : ' + e.getLineNumber() + ' : ' + e.getStackTraceString());
-    }
-    
-    private void handleError(String message){
-        errors.put(workOrder.Object_Type__c + ' : ' + message,'');
-    }
-    
+   
+    //
+    // Mass Generate
+    //
     public void massGenerateData(List<sObject> batch){
         String 
-            objectName = workOrder.Object_Type__c,
+            objectName = workOrder.Object_API_Name__c,
             parentLookupField = workOrder.Parent_Lookup_Field__c,
             parentWorkOrderId = workOrder.Parent_Work_Order__c;
        
@@ -227,8 +247,10 @@ global class DD_DataDesk implements Database.batchable<sObject>, Database.Statef
         errors = new Map<String, String>();
         
         // starts with top-level objects
-        for (sObject sObj : batch){
-            Integer multiplier = workOrder.Quantity_Per_Parent__c == null ? 1 : (Integer)workOrder.Quantity_Per_Parent__c;
+        for (Integer parentIndex = 0; parentIndex < batch.size(); parentIndex++){
+            sObject sObj = batch[parentIndex];
+            
+            Integer multiplier = (workOrder?.Quantity_Per_Parent__c == null || parentRecordIds.size() == 0) ? 1 : (Integer)workOrder.Quantity_Per_Parent__c;
             
             //
             // Determine the record count multiplier, if random quantity is selected
@@ -252,74 +274,125 @@ global class DD_DataDesk implements Database.batchable<sObject>, Database.Statef
                 // if this is iteration 2+, create a new object, 
                 // don't use the existing (created through the iterable)
                 if (i > 0){
-                    record = DD_Util.newSObject(objectName, recordTypeId);
+                    record = DD_Util.getNewSObject(objectName, load.recordType?.Id);
                 }    
                 
                 //
                 // Randomizer fields
                 //
-                if (!workOrder.Required_and_Merge_Fields_Only__c){
-                    for (String fieldName : load.randomValuesByField.keySet()){ 
-    
-                        Schema.DescribeFieldResult fieldDescribe = DD_Util.getFieldDescribe(objectName, fieldName);
-                        
-                        Object value;
-                        try {
-                            value = DD_Generator.getValue(fieldDescribe, load.randomValuesByField.get(fieldName), null);
-                            record.put(fieldName, value);
-                        } catch(Exception e){
-                            handleError('Error setting random field value : ' + fieldName, e);
-                        }
-                        
-                        trace(fieldName, '' + record.get(fieldName));
+                for (String fieldName : load.randomValuesByField.keySet()){ 
+                    
+                    Schema.DescribeFieldResult fieldDescribe = DD_Util.getFieldDescribe(objectName, fieldName);
+                    try {
+                        DD_Generator.setValue(record, fieldDescribe, load.randomValuesByField.get(fieldName));
+                    } catch(Exception e){
+                        handleError('Error setting random field value : ' + fieldName + ' : ' + record.get(fieldName), e);
                     }
-                    // add spaces to separate out override fields
-                    stackTrace += '\n';
-                    //
-                    // Set defaults and required fields
-                    if (objectName == 'Lead' || objectName == 'Contact'){
-                        String[] names = DD_Generator.getRandomName();
-                        record.put('FirstName', names[0]);
-                        record.put('LastName', names[1]);
-                        trace('FirstName', names[0]);
-                        trace('LastName', names[1]);
-                    }
+                    
+                    trace(fieldName, '' + record.get(fieldName));
                 }
                 
                 //
                 // merge fields
                 //
-                for (String fieldName : load.mergeValuesByField.keySet()){ 
+                for (String fieldName : load.discreteValuesByField.keySet()){ 
                     
                     Schema.DescribeFieldResult fieldDescribe = DD_Util.getFieldDescribe(objectName, fieldName);
-                    Object value, mergedValue = DD_Generator.getMergedValue(record, load.mergeValuesByField.get(fieldName)[0]);
                     
                     try {
-                        value = DD_Generator.getValue(fieldDescribe, load.mergeValuesByField.get(fieldName), mergedValue);
-                        record.put(fieldName, value);
+                        DD_Generator.setValue(record, fieldDescribe, load.discreteValuesByField.get(fieldName));
                     } catch(Exception e){
-                        handleError('Error setting merge field value : ' + fieldName + ' : ' + value, e);
+                        handleError('Error setting discrete field value : ' + fieldName + ' : ' + record.get(fieldName), e);
                     }
                     
                     trace(fieldName, '' + record.get(fieldName));
                 }
-                // add spaces to separate out override fields
-                stackTrace += '\n';
                 
                 //
                 // Populate references to parent object, overwrite random references
                 // 
                 if (String.isNotBlank(parentLookupField) && !parentRecordIds?.isEmpty()){
-                    record.put(parentLookupField, parentRecordIds[parentRecordIndex]);
-                    trace(parentLookupField, parentRecordIds[parentRecordIndex]);
+                    record.put(parentLookupField, parentRecordIds[parentIndex]);
+                    trace(parentLookupField, parentRecordIds[parentIndex]);
                 }
                 
                 objectsToProcess.add(record);
-                
-            	stackTrace += '\n\n';
             }
-            
-            parentRecordIndex++;
         }
+    }
+    
+    //
+	// Util   
+    //
+    public void trace(String fieldName, String value){
+        traceMap.put(fieldName, value);
+    }
+    
+    public DD_Log__c newChildLog(){
+        DateTime startTime = DateTime.newInstance(this.startMillis);
+        return new DD_Log__c(Name = (workOrder.Name + ' ' + startTime.format('MM-dd hh:mm:ss') + ' : ' + workOrder.Object_API_Name__c).left(80), 
+                             Status__c = 'Processing', 
+                             Start_Timestamp__c = startTime,
+                             Parent_Log__c = this.parentLog.Id,
+                             DD_Work_Order__c = this.workOrder.Id,
+                             Records_Generated__c = 0);
+    }
+    
+    private void handleError(String message, Exception e){
+        errors.put(message + ' : ' + e.getMessage(),
+                   '__Type : ' + e.getTypeName() + '\n' +
+                   '__Trace : ' + e.getStackTraceString()
+                  );
+    }
+    
+    private void handleError(String message){
+        errors.put(workOrder.Object_API_Name__c + ' : ' + message,'');
+    }
+    
+    //
+	// Iterable   
+    //
+    public class CustomIterable implements Iterable<sObject>{ 
+        Integer quantity;
+        String objectName, recordTypeId;
+        
+        public CustomIterable(Decimal quantity, String objectName, String recordTypeId){
+            this.quantity = (Integer)quantity;
+            this.objectName = objectName;
+            this.recordTypeId = recordTypeId;
+        }
+        
+        public Iterator<sObject> Iterator(){
+            return new CustomIterator(quantity, objectName, recordTypeId);
+        }
+    }
+    
+    public class CustomIterator implements Iterator<sObject>{
+        public sObject[] recordsToCreate = new sObject[]{}; 
+        Integer index = -1;
+        
+        public CustomIterator(Integer quantity, String objectName, String recordTypeId){
+            for (Integer i = 0; i < quantity; i++){
+                recordsToCreate.add(DD_Util.getNewSObject(objectName, recordTypeId));
+            }
+        }
+        
+        public Boolean hasNext(){
+            if (index >= (recordsToCreate.size() - 1)){
+                return false;
+            } else {
+                return true;
+            }
+        }    
+        
+        public sObject next(){
+            return recordsToCreate[++index];
+        } 
+    }
+
+    public static void testStuff(){
+        DD_DataDesk dd = new DD_DataDesk('a0g8a00001ZstD9AAJ', null, null);
+        dd.massGenerateData(new List<sObject>{ new Account() });
+        // Database.executeBatch(dd); 
     }
 }

@@ -8,7 +8,7 @@
         <actionName>InvokeToast</actionName>
         <actionType>apex</actionType>
         <connector>
-            <targetReference>Refresh_Work_Order</targetReference>
+            <targetReference>Refresh_DataDesk_JSON</targetReference>
         </connector>
         <flowTransactionModel>Automatic</flowTransactionModel>
         <inputParameters>
@@ -39,8 +39,8 @@
         <versionSegment>1</versionSegment>
     </actionCalls>
     <actionCalls>
-        <name>Refresh_Work_Order</name>
-        <label>Refresh Work Order</label>
+        <name>Refresh_DataDesk_JSON</name>
+        <label>Refresh DataDesk JSON</label>
         <locationX>176</locationX>
         <locationY>350</locationY>
         <actionName>DD_Refresher</actionName>

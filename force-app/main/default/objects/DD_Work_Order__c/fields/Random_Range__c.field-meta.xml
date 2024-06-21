@@ -2,6 +2,7 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Random_Range__c</fullName>
     <externalId>false</externalId>
+    <inlineHelpText>Pipe-delimited range values determine the lower and upper bounds for the record generation multipler, e.g. &quot;0|3&quot;.</inlineHelpText>
     <label>Random Range</label>
     <length>255</length>
     <required>false</required>

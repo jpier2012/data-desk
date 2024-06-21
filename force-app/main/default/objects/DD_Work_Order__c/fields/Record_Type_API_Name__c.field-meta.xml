@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
-    <fullName>Log_Type__c</fullName>
+    <fullName>Record_Type_API_Name__c</fullName>
     <externalId>false</externalId>
-    <formula>IF(NOT(ISBLANK(DD_Work_Order__c)), &quot;Generator&quot;, &quot;QA&quot;)</formula>
-    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
-    <label>Log Type</label>
+    <inlineHelpText>This is the DeveloperName for a record type. This will set as the default for the record when left blank.</inlineHelpText>
+    <label>Record Type API Name</label>
+    <length>255</length>
     <required>false</required>
     <trackTrending>false</trackTrending>
     <type>Text</type>

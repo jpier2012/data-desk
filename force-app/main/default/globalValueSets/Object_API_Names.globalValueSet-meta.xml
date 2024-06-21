@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GlobalValueSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customValue>
+        <fullName>Lead</fullName>
+        <default>false</default>
+        <label>Lead</label>
+    </customValue>
+    <customValue>
+        <fullName>Account</fullName>
+        <default>false</default>
+        <label>Account</label>
+    </customValue>
+    <customValue>
+        <fullName>Contact</fullName>
+        <default>false</default>
+        <label>Contact</label>
+    </customValue>
+    <customValue>
+        <fullName>Opportunity</fullName>
+        <default>false</default>
+        <label>Opportunity</label>
+    </customValue>
+    <customValue>
+        <fullName>Case</fullName>
+        <default>false</default>
+        <label>Case</label>
+    </customValue>
+    <customValue>
+        <fullName>PersonAccount</fullName>
+        <default>false</default>
+        <label>PersonAccount</label>
+    </customValue>
+    <description>DATADESK</description>
+    <masterLabel>Object API Names</masterLabel>
+    <sorted>false</sorted>
+</GlobalValueSet>

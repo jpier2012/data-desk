@@ -3,8 +3,13 @@
     <fullName>All</fullName>
     <columns>NAME</columns>
     <columns>Parent_Lookup_Field__c</columns>
-    <columns>Record_Type_Name__c</columns>
     <columns>Parent_Work_Order__c</columns>
+    <columns>Collection_Name__c</columns>
+    <columns>Base_Quantity__c</columns>
+    <columns>Quantity_Per_Parent__c</columns>
+    <columns>Random_Quantity_Per_Parent__c</columns>
+    <columns>Random_Range__c</columns>
+    <columns>CREATED_DATE</columns>
     <filterScope>Everything</filterScope>
     <label>All</label>
 </ListView>

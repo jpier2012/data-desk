@@ -11,7 +11,18 @@ export default class PlatformToast extends LightningElement {
   userId = Id;
   subscription = {};
 
-  showToast(application, title, message, variant, mode, user) {
+  showToast(application, title, message, variant, mode, user, URL) {
+    let messageData = [
+      {
+        url: URL,
+        label: message
+      }
+    ];
+
+    if (URL != undefined && URL != null && URL != ''){
+        message = "{0}";
+    }
+
     if (
       (user == null || user === this.userId) &&
       (application == null || application === this.applicationName)
@@ -19,6 +30,7 @@ export default class PlatformToast extends LightningElement {
       const evt = new ShowToastEvent({
         title: title,
         message: message,
+        messageData: messageData,
         variant: variant,
         mode: mode,
         role: 'status'
@@ -36,7 +48,8 @@ export default class PlatformToast extends LightningElement {
         message.Message__c,
         message.Style__c,
         message.Mode__c,
-        message.User__c
+        message.User__c,
+        message.URL__c
       );
     }.bind(this);
     subscribe(this.channelName, -1, messageCallback).then(response => {

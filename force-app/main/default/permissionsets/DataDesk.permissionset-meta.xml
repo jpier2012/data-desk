@@ -34,8 +34,38 @@
     </classAccesses>
     <description>All objects, Apex classes, and Lightning Web Components for DataDesk.</description>
     <fieldPermissions>
+        <editable>false</editable>
+        <field>DD_Log__c.Collection_Name__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>DD_Log__c.DD_Work_Order__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
         <editable>true</editable>
         <field>DD_Log__c.Errors__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>DD_Log__c.Is_Parent_Log__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>DD_Log__c.Log_Type__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>DD_Log__c.Parent_Log__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>DD_Log__c.Records_Generated__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -70,17 +100,22 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>DD_Work_Order__c.JSON_QA_Input__c</field>
+        <field>DD_Work_Order__c.Discrete_Values_Only__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>DD_Work_Order__c.JSON_QA_Output__c</field>
+        <field>DD_Work_Order__c.Exclude_Fields__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>DD_Work_Order__c.JSON_QA_Starting_Records__c</field>
+        <field>DD_Work_Order__c.Field_JSON__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>DD_Work_Order__c.JSON_Discrete_Values__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -100,22 +135,27 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>DD_Work_Order__c.JSON_Required_Merge_Values__c</field>
+        <field>DD_Work_Order__c.Junction_Lookup_1__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>DD_Work_Order__c.Job_Complete_Timestamp__c</field>
+        <field>DD_Work_Order__c.Junction_Lookup_2__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>DD_Work_Order__c.Job_Start_Timestamp__c</field>
+        <field>DD_Work_Order__c.Junction_Lookup_Field_1__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>DD_Work_Order__c.Object_Type__c</field>
+        <field>DD_Work_Order__c.Junction_Lookup_Field_2__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>DD_Work_Order__c.Object_API_Name__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -135,16 +175,6 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>DD_Work_Order__c.Passed_QA__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>true</editable>
-        <field>DD_Work_Order__c.QA_Process_Type__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>true</editable>
         <field>DD_Work_Order__c.Quantity_Per_Parent__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -160,22 +190,22 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>DD_Work_Order__c.Record_Type_Name__c</field>
+        <field>DD_Work_Order__c.Record_Type_API_Name__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>DD_Work_Order__c.Required_and_Merge_Fields_Only__c</field>
+        <field>DD_Work_Order__c.Record_Type_ID__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>DD_Work_Order__c.Stack_Trace__c</field>
+        <field>DD_Work_Order__c.Required_Fields__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>DD_Work_Order__c.Work_Order_Type__c</field>
+        <field>DD_Work_Order__c.Work_Order_JSON__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <flowAccesses>
@@ -203,15 +233,6 @@
         <allowEdit>true</allowEdit>
         <allowRead>true</allowRead>
         <modifyAllRecords>true</modifyAllRecords>
-        <object>DD_Work_Order_Log__c</object>
-        <viewAllRecords>true</viewAllRecords>
-    </objectPermissions>
-    <objectPermissions>
-        <allowCreate>true</allowCreate>
-        <allowDelete>true</allowDelete>
-        <allowEdit>true</allowEdit>
-        <allowRead>true</allowRead>
-        <modifyAllRecords>true</modifyAllRecords>
         <object>DD_Work_Order__c</object>
         <viewAllRecords>true</viewAllRecords>
     </objectPermissions>
@@ -226,10 +247,6 @@
     </objectPermissions>
     <tabSettings>
         <tab>DD_Log__c</tab>
-        <visibility>Visible</visibility>
-    </tabSettings>
-    <tabSettings>
-        <tab>DD_Work_Order_Log__c</tab>
         <visibility>Visible</visibility>
     </tabSettings>
     <tabSettings>

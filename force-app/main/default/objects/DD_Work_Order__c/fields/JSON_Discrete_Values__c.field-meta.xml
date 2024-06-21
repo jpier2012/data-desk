@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>JSON_Discrete_Values__c</fullName>
+    <externalId>false</externalId>
+    <inlineHelpText>These are non-random values that will populate records after the rest of the values have been set. These are populated by default when JSON is refreshed to ensure that records have discrete values for required fields. Basic merge fields are supported : 
+-[[FNAME]] gets a random first name.
+-[[LNAME]] gets a random last name, and will draw from the same celebrity name if populating the same field as LNAME.</inlineHelpText>
+    <label>JSON) Discrete Values</label>
+    <length>10000</length>
+    <trackTrending>false</trackTrending>
+    <type>LongTextArea</type>
+    <visibleLines>10</visibleLines>
+</CustomField>

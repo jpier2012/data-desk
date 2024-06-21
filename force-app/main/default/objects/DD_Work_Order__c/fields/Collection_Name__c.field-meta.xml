@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Collection_Name__c</fullName>
+    <defaultValue>&quot;Default&quot;</defaultValue>
+    <externalId>false</externalId>
+    <inlineHelpText>This can be used to label collections of work orders that represent certain scenarios, e.g. a &quot;Student Household&quot; or &quot;New Applicant&quot;. I&apos;ve kept this as a text field to allow spreadsheet uploads for easy deployment of existing work orders into new orgs.</inlineHelpText>
+    <label>Collection Name</label>
+    <length>255</length>
+    <required>true</required>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>
