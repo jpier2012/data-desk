@@ -5,32 +5,50 @@
         <name>CustomApplication</name>
     </types>
     <types>
-        <members>DD_Util</members>
-        <members>DD_Generator</members>
-        <members>DD_Refresher</members>
-        <members>DD_DataDesk</members>
+		<members>redux</members>
+		<members>reduxThunk</members>
+		<name>StaticResource</name>
+	</types>
+    <!--<types>
+        <members>DD_Help</members>
+        <members>DD_Controller</members>
+        <members>DD_Loader</members>
+        <members>DD_Builder</members>
         <members>DataDeskException</members>
         <members>InvokeToast</members>
         <members>JSONParse</members>
         <name>ApexClass</name>
-    </types>
+    </types>-->
     <types>
-        <members>platformToast</members>
+        <members>dataDeskApp</members>
+        <members>dataDesktop</members>
+        <members>ddActions</members>
+        <members>ddReducers</members>
+        <members>ddUtil</members>
+        <members>deleteModal</members>
+        <members>editModal</members>
+        <members>fieldBar</members>
+        <members>loadTemplateModal</members>
+        <members>saveTemplateModal</members>
+        <members>provider</members>
+        <members>lwcRedux</members>
+        <members>layout</members>
+        <members>valueSelectModal</members>
+        <members>workspace</members>
         <name>LightningComponentBundle</name>
     </types>
     <types>
-        <members>DD_Work_Order__c</members>
+        <members>DataDesk_Template__c</members>
         <members>DD_Log__c</members>
         <name>CustomTab</name>
     </types>
     <types>
-        <members>DD_Work_Order__c</members>
+        <members>DataDesk_Template__c</members>
         <members>DD_Log__c</members>
-        <members>Platform_Toast__e</members>
         <name>CustomObject</name>
     </types>
     <types>
-        <members>DD_Work_Order__c-DD Work Order Layout</members>
+        <members>DataDesk_Template__c-DataDesk Template Layout</members>
         <members>DD_Log__c-DD Log Layout</members>
         <name>Layout</name>
     </types>
@@ -41,17 +59,8 @@
         <name>FlexiPage</name>
     </types>
     <types>
-        <members>DataDesk_Refresh_Work_Order_JSON</members>
-        <members>DataDesk_Process_Work_Order</members>
-        <name>Flow</name>
-    </types>    
-    <types>
         <members>Object_API_Names</members>
         <name>GlobalValueSet</name>
-    </types>
-    <types>
-        <members>DataDesk</members>
-        <name>PermissionSet</name>
     </types>
     <version>59.0</version>
 </Package>

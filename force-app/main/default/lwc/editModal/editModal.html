@@ -1,0 +1,100 @@
+
+<template>
+  <lightning-modal-header label={title}></lightning-modal-header>
+  <lightning-modal-body>
+    <div if:true={error}>
+      <h1>{error}</h1>
+    </div>
+    <div if:false={isLoading}>
+      <div if:true={showName}>
+        <lightning-input label="Name" maxlength="80" data-name="data" data-id="name" value={name}></lightning-input>
+      </div>
+      <lightning-textarea label="Description" maxlength="255" data-name="data" data-id="description" value={description} placeholder="Enter a description..."></lightning-textarea>
+
+      <div if:true={field}>
+        <br>
+        <div class="slds-grid">
+          <div class="slds-col slds-size_5-of-6">
+            <template lwc:if={generateValue}>
+              <template lwc:if={field.isNameField}>
+                A random name will be chosen.
+              </template>
+              <template lwc:elseif={field.inputType.email}>
+                A unique email address will be generated for each record.
+              </template>
+              <template lwc:elseif={field.inputType.date}>
+                Enter a range: 
+                <lightning-input type="date" data-name="data" data-id="min" label="Min" value={min}></lightning-input>
+                <lightning-input type="date" data-name="data" data-id="max" label="Max" value={max}></lightning-input>
+              </template>
+              <template lwc:elseif={field.inputType.datetime}>
+                Enter a range: 
+                <lightning-input type="datetime" data-name="data" data-id="min" label="Min" value={min}></lightning-input>
+                <lightning-input type="datetime" data-name="data" data-id="max" label="Max" value={max}></lightning-input>
+  
+              </template>
+              <template lwc:elseif={field.inputType.number}>
+                Enter a range: 
+                <lightning-input type="number" data-name="data" data-id="min" label="Min" value={min}></lightning-input>
+                <lightning-input type="number" data-name="data" data-id="max" label="Max" value={max}></lightning-input>
+  
+              </template>
+              <template lwc:elseif={field.inputType.tel}>
+                TODO: A random telephone number will be generated for each record.
+              </template>
+              <template lwc:elseif={field.inputType.search}>
+                Enter {referenceObjectName} query parameters:
+                <lightning-input type="text" data-id="referenceIdField" label="Reference ID Field" value={referenceIdField}></lightning-input>
+                <template lwc:if={profileNameLike}>
+                  <lightning-input type="text" data-id="profileNameLike" label="Profile Name Like" value={profileNameLike}></lightning-input>
+                </template>
+                <template lwc:elseif={recordTypeOptions}>
+                  <lightning-combobox data-id="recordTypeId" label="Record Type" value={recordTypeId} options={recordTypeOptions} onchange={handleValueChange}></lightning-combobox>
+                </template>
+                <lightning-input type="text" data-id="criteria" label="SOQL Criteria" value={criteria}></lightning-input>
+              </template>
+              <template lwc:elseif={field.inputType.checkbox}>
+                Enter a percent likelihood of true: 
+                <lightning-input 
+                formatter="percent-fixed" type="number" data-name="data" data-id="min" label="% True" value={min} min="0" max="100"></lightning-input>
+              </template>
+              <template lwc:elseif={field.inputType.text}>
+                TODO: Add merge fields.
+              </template>
+            </template>
+            <template lwc:if={field.inputType.combobox}>
+              Select the values to include in the picklist in both the UI and value generation.
+              <lightning-button variant="brand" label="Toggle Select All Values" onclick={handleSelectAllValues}></lightning-button>
+              <div class="scroller">
+                <template for:each={valueOptions} for:item="value">
+                  <div key={value.label}>
+                    <lightning-input type="checkbox" label={value.label} data-id={value.value} checked={value.isSelected} onchange={handleToggleSelect}></lightning-input>
+                  </div>
+                </template>
+              </div>
+            </template>
+          </div>
+          <div class="slds-col slds-size_1-of-6 center">
+            <div>
+              <div class="slds-text-title slds-m-bottom_xxx-small">Generate Value</div>
+              <lightning-input type="toggle" data-name="data" data-id="generateValue" 
+              message-toggle-active="true" message-toggle-inactive="false" 
+              checked={generateValue} onchange={handleToggleGenerate}></lightning-input>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </lightning-modal-body>
+  <lightning-modal-footer>
+    <div class="slds-grid slds-grid_align-spread">
+      <div if:false={hideRemove}>
+        <lightning-button variant="destructive" label={buttonLabel} onclick={handleRemove}></lightning-button>
+      </div>
+      <div if:true={hideRemove}>
+        <div></div>
+      </div>
+      <lightning-button variant="brand" label="Save" onclick={handleSave}></lightning-button>
+    </div>
+  </lightning-modal-footer>
+</template>

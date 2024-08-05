@@ -1,0 +1,49 @@
+<template>
+  <lightning-modal-header label="Delete Records"></lightning-modal-header>
+  <lightning-modal-body>
+    <div if:true={message}>
+      <div style="justify-content: center;">{message}</div>
+    </div>
+    <div class="slds-grid slds-grid_align-space">
+      <div class="slds-col slds-size_1-of-2">
+        <div if:true={showDateRange}>
+          <lightning-input label="Start Date" type="date" 
+            field-level-help="Delete records created on or after this date." 
+            name="deleteStartDate" value={deleteStartDate}>
+          </lightning-input>
+          <br>
+          <lightning-input label="End Date" type="date" 
+            field-level-help="Delete records created on or before this date." 
+            name="deleteEndDate" value={deleteEndDate}>
+          </lightning-input>
+        </div>
+      </div>
+      <div class="slds-col slds-size_1-of-2 slds-grid slds-grid_align-center">
+        <h2>Which object(s)?</h2>
+        <lightning-input 
+          type="toggle" 
+          value={deleteRecordsForAllObjects} 
+          checked={deleteRecordsForAllObjects} 
+          onchange={handleObjectToggle}
+          message-toggle-active="All Objects in Picklist" 
+          message-toggle-inactive="Template Object">
+        </lightning-input>
+        <br>
+        <h2>What records?</h2>
+        <lightning-input 
+          type="toggle" 
+          value={showDateRange} 
+          checked={showDateRange} 
+          onchange={handleDateToggle}
+          message-toggle-active="CreatedDate Range" 
+          message-toggle-inactive="All">
+        </lightning-input>
+      </div>
+    </div>
+  </lightning-modal-body>
+  <lightning-modal-footer>
+    <lightning-button variant="destructive" label="Delete Records" onclick={handleDelete} class="slds-m-around_medium">
+    </lightning-button>
+  </lightning-modal-footer>
+  </lightning-card>
+</template>

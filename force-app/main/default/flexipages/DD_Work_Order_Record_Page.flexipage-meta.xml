@@ -52,16 +52,6 @@
                 <identifier>RecordParent_Work_Order_cField</identifier>
             </fieldInstance>
         </itemInstances>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>required</value>
-                </fieldInstanceProperties>
-                <fieldItem>Record.Base_Quantity__c</fieldItem>
-                <identifier>RecordBase_Quantity_cField</identifier>
-            </fieldInstance>
-        </itemInstances>
         <name>Facet-8b03220d-4187-43c5-aa1a-8442dd6b43a8</name>
         <type>Facet</type>
     </flexiPageRegions>
@@ -140,16 +130,6 @@
                     <name>uiBehavior</name>
                     <value>none</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.Parent_ID_Field__c</fieldItem>
-                <identifier>RecordParent_ID_Field__cField</identifier>
-            </fieldInstance>
-        </itemInstances>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>none</value>
-                </fieldInstanceProperties>
                 <fieldItem>Record.Parent_Lookup_Field__c</fieldItem>
                 <identifier>RecordParent_Lookup_Field_cField</identifier>
             </fieldInstance>
@@ -220,10 +200,44 @@
             <fieldInstance>
                 <fieldInstanceProperties>
                     <name>uiBehavior</name>
+                    <value>required</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Base_Quantity__c</fieldItem>
+                <identifier>RecordBase_Quantity_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Field_JSON__c</fieldItem>
+                <identifier>RecordField_JSON_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <name>Facet-959996f0-faf1-4548-9d21-9238a60582b7</name>
+        <type>Facet</type>
+    </flexiPageRegions>
+    <flexiPageRegions>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
                     <value>readonly</value>
                 </fieldInstanceProperties>
                 <fieldItem>Record.Required_Fields__c</fieldItem>
                 <identifier>RecordRequired_Fields_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Exclude_Fields__c</fieldItem>
+                <identifier>RecordExclude_Fields_cField</identifier>
             </fieldInstance>
         </itemInstances>
         <itemInstances>
@@ -246,20 +260,6 @@
                 <identifier>RecordJSON_Random_Value_Ranges_cField</identifier>
             </fieldInstance>
         </itemInstances>
-        <name>Facet-ee74ac9f-7dc5-419f-b44b-860cba86f01e</name>
-        <type>Facet</type>
-    </flexiPageRegions>
-    <flexiPageRegions>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>none</value>
-                </fieldInstanceProperties>
-                <fieldItem>Record.Exclude_Fields__c</fieldItem>
-                <identifier>RecordExclude_Fields_cField</identifier>
-            </fieldInstance>
-        </itemInstances>
         <itemInstances>
             <fieldInstance>
                 <fieldInstanceProperties>
@@ -280,7 +280,7 @@
                 <identifier>RecordJSON_Random_Picklist_Values_cField</identifier>
             </fieldInstance>
         </itemInstances>
-        <name>Facet-b6e33faf-fdfe-4b1a-8ac4-39cf8bf87b62</name>
+        <name>Facet-da349ce3-b26f-45cc-a379-44e7d793280d</name>
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
@@ -288,23 +288,23 @@
             <componentInstance>
                 <componentInstanceProperties>
                     <name>body</name>
-                    <value>Facet-ee74ac9f-7dc5-419f-b44b-860cba86f01e</value>
+                    <value>Facet-959996f0-faf1-4548-9d21-9238a60582b7</value>
                 </componentInstanceProperties>
                 <componentName>flexipage:column</componentName>
-                <identifier>flexipage_column7</identifier>
+                <identifier>flexipage_column5</identifier>
             </componentInstance>
         </itemInstances>
         <itemInstances>
             <componentInstance>
                 <componentInstanceProperties>
                     <name>body</name>
-                    <value>Facet-b6e33faf-fdfe-4b1a-8ac4-39cf8bf87b62</value>
+                    <value>Facet-da349ce3-b26f-45cc-a379-44e7d793280d</value>
                 </componentInstanceProperties>
                 <componentName>flexipage:column</componentName>
-                <identifier>flexipage_column8</identifier>
+                <identifier>flexipage_column6</identifier>
             </componentInstance>
         </itemInstances>
-        <name>Facet-44eee31f-50e0-46c5-80f7-c41e9638f188</name>
+        <name>Facet-58e475dd-5b86-40c1-8f16-b03e069a364f</name>
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
@@ -348,7 +348,7 @@
             <componentInstance>
                 <componentInstanceProperties>
                     <name>columns</name>
-                    <value>Facet-44eee31f-50e0-46c5-80f7-c41e9638f188</value>
+                    <value>Facet-58e475dd-5b86-40c1-8f16-b03e069a364f</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>horizontalAlignment</name>
@@ -356,10 +356,10 @@
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>label</name>
-                    <value>JSON</value>
+                    <value>Generator Configuration</value>
                 </componentInstanceProperties>
                 <componentName>flexipage:fieldSection</componentName>
-                <identifier>flexipage_fieldSection4</identifier>
+                <identifier>flexipage_fieldSection3</identifier>
             </componentInstance>
         </itemInstances>
         <itemInstances>

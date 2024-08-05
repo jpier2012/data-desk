@@ -1,0 +1,37 @@
+<template>
+  <template lwc:if={isLoading}>
+    <lightning-spinner alternative-text="Loading..."></lightning-spinner>
+  </template>
+  <template lwc:else>
+    <!--<div class="box centered" data-id="filler" draggable="true" ondragstart={handleDragStart}>
+      Add Filler
+    </div>-->  
+    <lightning-input type="search" label="Search for a Field" name="search" value={searchText} is-loading={searchLoading} onchange={handleSearchChange}> </lightning-input>
+  
+    <div lwc:ref="scroller" class="scroller">
+    <template for:each={props.allFields} for:item="field">
+      <div key={field.apiName}>
+        <div if:true={field.show}>
+          <button data-id={field.apiName} data-required={field.isRequired} class={field.buttonClasses} draggable={field.isDraggable} ondragstart={handleDragStart}>
+            <div class="slds-grid slds-grid_vertical" style="text-align: left;">
+              
+              <div class="slds-col slds-grid">
+
+                <div class="slds-col slds-size_2-of-3" style="text-align: left;">
+                  <div style="font-weight: bold; font-size: .9em;">{field.label}</div>
+                </div>
+
+                <div class="slds-col slds-size_1-of-3" style="text-align: right; font-size: 0.8em;">
+                  {field.dataType}
+                  <div lwc:if={field.referencedObject}>({field.referencedObject})</div>
+                </div>
+              </div>
+              <div class="slds-col" style="font-size: 0.8em;">{field.apiName}</div>
+            </div>
+          </button>
+        </div>
+      </div>
+    </template>
+    </div>
+  </template>
+</template>

@@ -1,0 +1,13 @@
+.center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.scroller {
+  min-height: 5em;
+  max-height: 15em;
+  width: 100%; 
+  overflow-y: scroll; 
+  border: 1px solid lightgray;
+}

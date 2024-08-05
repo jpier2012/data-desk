@@ -1,0 +1,40 @@
+<template>
+  <lightning-modal-header label={title}></lightning-modal-header>
+  <lightning-modal-body>
+    <template lwc:if={error}>
+      <h1>ERROR</h1>
+      <p>{error}</p>
+    </template>
+    <div class="slds-grid">
+      <div class="slds-col slds-size_1-of-1">
+        <lightning-input label="Template Name" maxlength="80" data-id="template" name="Name" value={templateName}></lightning-input>
+        <lightning-input label="Description" maxlength="255" data-id="template" name={descriptionFN} value={description} placeholder="Describe this scenario..."></lightning-input>
+        
+        <template lwc:if={objectOptions}>
+
+          <lightning-combobox data-id="template" name={objectFN}
+              label="Object"
+              value={selectedObject}
+              placeholder="Select an Object"
+              disabled={disableObjectSelect}
+              options={objectOptions}
+              onchange={objectChange}
+          ></lightning-combobox>
+          <template lwc:if={recordTypeOptions}>
+            <lightning-combobox data-id="template" name={recordTypeIdFN}
+              label="Record Type API Name"
+              value={selectedRecordTypeId}
+              placeholder="Select a Record Type"
+              options={recordTypeOptions}
+              onchange={recordTypeChange}
+            ></lightning-combobox>
+          </template>
+        </template>  
+        <lightning-input label="Record Count" type="number" data-id="template" name={recordCountFN} value={recordCount}></lightning-input>
+      </div>
+    </div>
+  </lightning-modal-body>
+  <lightning-modal-footer>
+      <lightning-button variant="brand" label="Save Template" onclick={handleSave}></lightning-button>
+  </lightning-modal-footer>
+</template>

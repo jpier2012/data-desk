@@ -1,0 +1,13 @@
+<template>
+  <lightning-modal-header label="Load Template"></lightning-modal-header>
+    <lightning-modal-body>
+      <template lwc:if={error}>
+        <h1>ERROR</h1>
+        <p>{error}</p>
+      </template>
+      <lightning-combobox data-name="templateSelect" label="Choose a Template" options={templateOptions}></lightning-combobox>
+    </lightning-modal-body>
+    <lightning-modal-footer>
+        <lightning-button variant="brand" label="Load Template" onclick={handleLoad}></lightning-button>
+    </lightning-modal-footer>
+</template>

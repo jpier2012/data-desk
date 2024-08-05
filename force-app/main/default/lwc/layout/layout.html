@@ -1,0 +1,132 @@
+<template>
+  <div lwc:ref="scroller" class="scroller" data-id="sections">
+    <template for:each={props.layout} for:item="section">
+      <div class="bg box slds-m-bottom_small" key={section.index}>
+        <div class="slds-grid slds-grid_align-spread">
+          <h1>{section.name}</h1>
+          <div class="icon-button" data-section-index={section.index} onclick={handleSectionEditModal}>
+            <lightning-icon size="x-small" icon-name="utility:settings" title="Configure"></lightning-icon>
+          </div>
+        </div>
+        <p>{section.description}</p>
+        <div class="stretch slds-grid">
+          <template for:each={section.columns} for:item="column">
+            <div class="stretch slds-p-around_xx-small" key={column.index} data-section-index={section.index} data-column-index={column.index} >
+              <div if:false={column.fields.length}>
+                <div class="box spot slds-m-top_x-small" data-id="spot" 
+                data-section-index={section.index} data-column-index={column.index} ondragover={handleDragOver} ondragleave={handleDragLeave} ondrop={handleDrop}>
+                  Drag Field Here
+                </div>
+              </div>
+          
+              <template for:each={column.fields} for:item="field" for:index="index">
+                <div key={field.apiName} class="minput stretch slds-p-around_x-small slds-m-top_x-small" data-id={field.apiName} data-section-index={section.index} 
+                  data-column-index={column.index} data-field-index={index} draggable=true ondragstart={handleDragStart}
+                    ondragover={handleDragOver} ondragleave={handleDragLeave} ondrop={handleDrop}>
+                  <div class="slds-grid">
+                    <div class="slds-col slds-size_3-of-4">
+                      <template lwc:if={field.generateValue}>
+                        <div class="slds-text-title slds-p-top_xx-small">{field.label}</div>
+                        <div class="small"> 
+                          <div if:true={field.isNameField}> A random name will be chosen for each record.</div>
+                          <div if:true={field.inputType.combobox}>{field.values.length} values selected.</div>
+                          <div if:true={field.inputType.tel}>A random telephone number will be generated.</div>
+                          <div if:true={field.inputType.checkbox}>It is {field.min}% likely the value will be true.</div>
+                          <div if:true={field.inputType.number}>
+                            <b>Min:</b> {field.min}
+                            <br>
+                            <b>Max:</b> {field.max}
+                          </div>
+                          <div if:true={field.inputType.date}>
+                            <b>Start:</b> {field.min}
+                            <br>
+                            <b>End:</b> {field.max}
+                          </div>
+                          <div if:true={field.inputType.datetime}>
+                            <b>Start:</b> {field.min}
+                            <br>
+                            <b>End:</b> {field.max}
+                          </div>
+                          <div if:true={field.inputType.search}>{field.queryString}</div>
+                          <div if:true={field.inputType.email}>
+                            A unique email address will be generated for each record:
+                            <br>
+                            "i.am.[[FirstName]].[[LastName]].[[Random Number]]@datadesk.com"
+                          </div>
+                        </div>
+                      </template>
+                      <template lwc:else>
+                        <template lwc:if={field.inputType.combobox}>
+                          {field.values.length} values selected.
+                          <lightning-combobox label={field.label} data-id={field.apiName} value={field.currentValue} options={field.values} onchange={handleValueChange}></lightning-combobox>
+
+                        </template>
+                        <template lwc:elseif={field.inputType.text}>
+          
+                            <lightning-input label={field.label} type="text" maxlength="255" data-id={field.apiName} value={field.currentValue} onchange={handleValueChange}></lightning-input>
+          
+                        </template>
+                        <template lwc:elseif={field.inputType.checkbox}>
+                          <div>
+                            <div class="slds-text-title slds-m-bottom_xxx-small slds-p-top_xx-small">{field.label}</div>
+                            <lightning-input type="toggle" data-id={field.apiName} message-toggle-active="true" message-toggle-inactive="false" checked={field.currentValue} onchange={handleValueChange}></lightning-input>
+                          </div>
+                        </template>
+                        <template lwc:elseif={field.inputType.date}>
+          
+                          <lightning-input label={field.label} type="date" data-id={field.apiName} value={field.currentValue} onchange={handleValueChange}></lightning-input>
+          
+                        </template>
+                        <template lwc:elseif={field.inputType.number}>
+          
+                          <lightning-input label={field.label} type="number" data-id={field.apiName} value={field.currentValue} onchange={handleValueChange}></lightning-input>
+          
+                        </template>
+                        <template lwc:elseif={field.inputType.datetime}>
+          
+                          <lightning-input label={field.label} type="datetime" data-id={field.apiName} value={field.currentValue} onchange={handleValueChange}></lightning-input>
+          
+                        </template>
+                        <template lwc:elseif={field.inputType.tel}>
+          
+                          <lightning-input label={field.label} type="tel" data-id={field.apiName} value={field.currentValue} pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}" onchange={handleValueChange}></lightning-input>
+                          
+                        </template>
+                        <template lwc:elseif={field.inputType.email}>
+          
+                          <lightning-input label={field.label} type="email" data-id={field.apiName} value={field.currentValue} onchange={handleValueChange}></lightning-input>
+          
+                        </template>
+                        <template lwc:elseif={field.inputType.search}>
+          
+                          <lightning-input label={field.label} type="search" data-id={field.apiName} value={field.currentValue} onchange={handleValueChange}></lightning-input>
+                          
+                        </template>
+                      </template>
+                    </div>
+                    <div class="slds-col slds-size_1-of-4 slds-grid slds-grid_align-end">
+                      <div if:true={field.generateValue}>
+                        <lightning-icon size="xx-small" icon-name="action:question_post_action" alternative-text="Random Value" title="Random Value"></lightning-icon>
+                      </div>
+                      <div if:true={field.isRequired}>
+                        <lightning-icon size="xx-small" icon-name="action:check" alternative-text="Required" title="Required"></lightning-icon>
+                      </div>
+                      <div class="icon-button slds-p-left_xx-small" data-section-index={section.index} data-column-index={column.index} data-field-index={index} data-id={field.apiName} onclick={handleFieldEditModal}>
+                          <lightning-icon size="xx-small" icon-name="utility:settings" title="Configure"></lightning-icon>
+                      </div>
+                    </div>
+                  </div>
+                  <div if:true={field.description}>
+                    <div style="border-top: 1px solid navy;"></div>
+                    <p style="color: navy;" class="small">{field.description}</p>
+                  </div>
+                </div>
+              </template>
+            </div>
+          </template>
+        </div>
+      </div>
+    </template>
+    <lightning-button-icon class="slds-m-around_xsmall" icon-name="utility:add" alternative-text="Add Section" onclick={handleAddNewSection}></lightning-button-icon>
+  </div>
+</template>
