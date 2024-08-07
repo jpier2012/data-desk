@@ -8,7 +8,7 @@
     <div class="slds-grid">
       <div class="slds-col slds-size_1-of-1">
         <lightning-input label="Template Name" maxlength="80" data-id="template" name="Name" value={templateName}></lightning-input>
-        <lightning-input label="Description" maxlength="255" data-id="template" name={descriptionFN} value={description} placeholder="Describe this scenario..."></lightning-input>
+        <lightning-textarea label="Description" maxlength="255" data-id="template" name={descriptionFN} value={description} placeholder="Describe this scenario..."></lightning-textarea>
         
         <template lwc:if={objectOptions}>
 

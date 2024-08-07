@@ -19,25 +19,13 @@
         </div>
       </div>
       <div class="slds-col slds-size_1-of-2 slds-grid slds-grid_align-center">
-        <h2>Which object(s)?</h2>
-        <lightning-input 
-          type="toggle" 
-          value={deleteRecordsForAllObjects} 
-          checked={deleteRecordsForAllObjects} 
-          onchange={handleObjectToggle}
-          message-toggle-active="All Objects in Picklist" 
-          message-toggle-inactive="Template Object">
-        </lightning-input>
-        <br>
-        <h2>What records?</h2>
-        <lightning-input 
-          type="toggle" 
-          value={showDateRange} 
-          checked={showDateRange} 
-          onchange={handleDateToggle}
-          message-toggle-active="CreatedDate Range" 
-          message-toggle-inactive="All">
-        </lightning-input>
+        <template lwc:if={objectOptions}>
+          <template for:each={objectOptions} for:item="object">
+            <div key={object.value}>
+              <lightning-input type="checkbox" label={object.label} data-id={object.value} checked={value.isSelected} onchange={handleToggleSelect}></lightning-input>
+            </div>
+          </template>
+        </template>
       </div>
     </div>
   </lightning-modal-body>

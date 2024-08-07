@@ -254,13 +254,15 @@ const reducer = (state = initialState, action) => {
                     .fields[addr[FROM_FIELD_INDEX]];
 
                 let vals = action.payload.fieldData?.values;
+                let query = action.payload.fieldData?.query;
 
                 temp = {
                     ...field,
-                    ...action.payload.fieldData,
-                    query: { ...action.payload.fieldData?.query },
-                    values: vals ? [ ...vals ] : []
+                    ...action.payload.fieldData
                 }
+
+                temp.query = query ? { ...action.payload.fieldData?.query } : {};
+                temp.values = vals ? [ ...vals ] : []
 
                 layout[addr[FROM_SECTION_INDEX]]
                     .columns[addr[FROM_COLUMN_INDEX]]

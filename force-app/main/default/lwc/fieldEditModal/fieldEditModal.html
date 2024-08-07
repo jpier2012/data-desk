@@ -6,9 +6,6 @@
       <h1>{error}</h1>
     </div>
     <div if:false={isLoading}>
-      <div if:true={showName}>
-        <lightning-input label="Name" maxlength="80" data-name="data" data-id="name" value={name}></lightning-input>
-      </div>
       <lightning-textarea label="Description" maxlength="255" data-name="data" data-id="description" value={description} placeholder="Enter a description..."></lightning-textarea>
 
       <div if:true={field}>
@@ -43,15 +40,17 @@
                 TODO: A random telephone number will be generated for each record.
               </template>
               <template lwc:elseif={field.inputType.search}>
+
                 Enter {referenceObjectName} query parameters:
-                <lightning-input type="text" data-id="referenceIdField" label="Reference ID Field" value={referenceIdField}></lightning-input>
+                <lightning-input type="text" data-name="query" data-id="referenceIdField" label="Reference ID Field" value={referenceIdField}></lightning-input>
                 <template lwc:if={profileNameLike}>
-                  <lightning-input type="text" data-id="profileNameLike" label="Profile Name Like" value={profileNameLike}></lightning-input>
+                  <lightning-input type="text" data-name="query" data-id="profileNameLike" label="Profile Name Like" value={profileNameLike}></lightning-input>
                 </template>
                 <template lwc:elseif={recordTypeOptions}>
-                  <lightning-combobox data-id="recordTypeId" label="Record Type" value={recordTypeId} options={recordTypeOptions} onchange={handleValueChange}></lightning-combobox>
+                  <lightning-combobox data-name="query" data-id="recordTypeId" label="Record Type" value={recordTypeId} options={recordTypeOptions} onchange={handleValueChange}></lightning-combobox>
                 </template>
-                <lightning-input type="text" data-id="criteria" label="SOQL Criteria" value={criteria}></lightning-input>
+                <lightning-input type="text" data-name="query" data-id="criteria" label="SOQL Criteria" value={criteria}></lightning-input>
+              
               </template>
               <template lwc:elseif={field.inputType.checkbox}>
                 Enter a percent likelihood of true: 
@@ -63,8 +62,11 @@
               </template>
             </template>
             <template lwc:if={field.inputType.combobox}>
+              <br>
               Select the values to include in the picklist in both the UI and value generation.
-              <lightning-button variant="brand" label="Toggle Select All Values" onclick={handleSelectAllValues}></lightning-button>
+              <br><br>
+              <lightning-button variant="brand" label={buttonLabel} onclick={handleSelectAllValues}></lightning-button>
+              <br><br>
               <div class="scroller">
                 <template for:each={valueOptions} for:item="value">
                   <div key={value.label}>
@@ -72,6 +74,7 @@
                   </div>
                 </template>
               </div>
+
             </template>
           </div>
           <div class="slds-col slds-size_1-of-6 center">
@@ -89,7 +92,7 @@
   <lightning-modal-footer>
     <div class="slds-grid slds-grid_align-spread">
       <div if:false={hideRemove}>
-        <lightning-button variant="destructive" label={buttonLabel} onclick={handleRemove}></lightning-button>
+        <lightning-button variant="destructive" label="Remove Field from Layout" onclick={handleRemove}></lightning-button>
       </div>
       <div if:true={hideRemove}>
         <div></div>

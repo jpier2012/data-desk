@@ -20,87 +20,132 @@
               </div>
           
               <template for:each={column.fields} for:item="field" for:index="index">
+                <!--<c-field-cell 
+                  key={field.apiName} 
+                  field={field} 
+                  section-index={section.index} 
+                  column-index={column.index} 
+                  field-index={index}
+                  object-api-name={objectApiName}
+                ></c-field-cell>-->
+                
                 <div key={field.apiName} class="minput stretch slds-p-around_x-small slds-m-top_x-small" data-id={field.apiName} data-section-index={section.index} 
                   data-column-index={column.index} data-field-index={index} draggable=true ondragstart={handleDragStart}
                     ondragover={handleDragOver} ondragleave={handleDragLeave} ondrop={handleDrop}>
                   <div class="slds-grid">
                     <div class="slds-col slds-size_3-of-4">
-                      <template lwc:if={field.generateValue}>
-                        <div class="slds-text-title slds-p-top_xx-small">{field.label}</div>
-                        <div class="small"> 
-                          <div if:true={field.isNameField}> A random name will be chosen for each record.</div>
-                          <div if:true={field.inputType.combobox}>{field.values.length} values selected.</div>
-                          <div if:true={field.inputType.tel}>A random telephone number will be generated.</div>
-                          <div if:true={field.inputType.checkbox}>It is {field.min}% likely the value will be true.</div>
-                          <div if:true={field.inputType.number}>
+                      <template lwc:if={field.inputType.text}>
+                        <template lwc:if={field.isNameField}> 
+                          <template lwc:if={field.generateValue}>
+                            <div class="slds-text-title slds-p-top_xx-small">{field.label}</div>
+                            <div class="small">A random name will be chosen for each record.</div>
+                          </template>
+                          <template lwc:else>
+                            <lightning-input label={field.label} type="text" maxlength="255" data-id={field.apiName} value={field.currentValue} onchange={handleValueChange}></lightning-input>
+                            </template>
+                        </template>
+                        <template lwc:else>
+                          <lightning-input label={field.label} type="text" maxlength="255" data-id={field.apiName} value={field.currentValue} onchange={handleValueChange}></lightning-input>
+                          <template lwc:if={field.generateValue}>
+                            <div class="small">Merge fields and calculations entered within double square brackets will be parsed, e.g. "[[FirstName]]" will reference the FirstName value on the record.</div>
+                          </template>
+                        </template>
+                      </template>
+
+                      <template lwc:elseif={field.inputType.combobox}>
+                        <template lwc:if={field.generateValue}>
+                          <div class="slds-text-title slds-p-top_xx-small">{field.label}</div>
+                          <div class="small"> {field.values.length} values for random selection.</div>
+                        </template>
+                        <template lwc:else>
+                          <lightning-combobox label={field.label} data-id={field.apiName} value={field.currentValue} options={field.values} onchange={handleValueChange}></lightning-combobox>
+                          <div class="small"> {field.values.length} values available.</div>
+                        </template>
+                      </template>
+
+                      <template lwc:elseif={field.inputType.checkbox}>
+                        <div class="slds-text-title slds-m-bottom_xxx-small slds-p-top_xx-small">{field.label}</div>
+                        <template lwc:if={field.generateValue}>
+                          <div class="small"> It is {field.min}% likely the value will be true. </div>
+                        </template>
+                        <template lwc:else>
+                          <div>
+                            <lightning-input type="toggle" data-id={field.apiName} message-toggle-active="true" message-toggle-inactive="false" checked={field.currentValue} onchange={handleValueChange}></lightning-input>
+                          </div>
+                        </template>
+                      </template>
+
+                      <template lwc:elseif={field.inputType.number}>
+                        <template lwc:if={field.generateValue}>
+                          <div class="slds-text-title slds-p-top_xx-small">{field.label}</div>
+                          <div class="small"> 
                             <b>Min:</b> {field.min}
                             <br>
                             <b>Max:</b> {field.max}
                           </div>
-                          <div if:true={field.inputType.date}>
-                            <b>Start:</b> {field.min}
-                            <br>
-                            <b>End:</b> {field.max}
-                          </div>
-                          <div if:true={field.inputType.datetime}>
-                            <b>Start:</b> {field.min}
-                            <br>
-                            <b>End:</b> {field.max}
-                          </div>
-                          <div if:true={field.inputType.search}>{field.queryString}</div>
-                          <div if:true={field.inputType.email}>
-                            A unique email address will be generated for each record:
-                            <br>
-                            "i.am.[[FirstName]].[[LastName]].[[Random Number]]@datadesk.com"
-                          </div>
-                        </div>
-                      </template>
-                      <template lwc:else>
-                        <template lwc:if={field.inputType.combobox}>
-                          {field.values.length} values selected.
-                          <lightning-combobox label={field.label} data-id={field.apiName} value={field.currentValue} options={field.values} onchange={handleValueChange}></lightning-combobox>
-
                         </template>
-                        <template lwc:elseif={field.inputType.text}>
-          
-                            <lightning-input label={field.label} type="text" maxlength="255" data-id={field.apiName} value={field.currentValue} onchange={handleValueChange}></lightning-input>
-          
-                        </template>
-                        <template lwc:elseif={field.inputType.checkbox}>
-                          <div>
-                            <div class="slds-text-title slds-m-bottom_xxx-small slds-p-top_xx-small">{field.label}</div>
-                            <lightning-input type="toggle" data-id={field.apiName} message-toggle-active="true" message-toggle-inactive="false" checked={field.currentValue} onchange={handleValueChange}></lightning-input>
-                          </div>
-                        </template>
-                        <template lwc:elseif={field.inputType.date}>
-          
-                          <lightning-input label={field.label} type="date" data-id={field.apiName} value={field.currentValue} onchange={handleValueChange}></lightning-input>
-          
-                        </template>
-                        <template lwc:elseif={field.inputType.number}>
-          
+                        <template lwc:else>
                           <lightning-input label={field.label} type="number" data-id={field.apiName} value={field.currentValue} onchange={handleValueChange}></lightning-input>
-          
                         </template>
-                        <template lwc:elseif={field.inputType.datetime}>
-          
+                      </template>
+
+                      <template lwc:elseif={field.inputType.date}>
+                        <template lwc:if={field.generateValue}>
+                          <div class="slds-text-title slds-p-top_xx-small">{field.label}</div>
+                          <div class="small"> 
+                            <b>Start:</b> {field.min}
+                            <br>
+                            <b>End:</b> {field.max}
+                          </div>
+                        </template>
+                        <template lwc:else>
+                          <lightning-input label={field.label} type="date" data-id={field.apiName} value={field.currentValue} onchange={handleValueChange}></lightning-input>
+                        </template>
+                      </template>
+
+                      <template lwc:elseif={field.inputType.datetime}>
+                        <template lwc:if={field.generateValue}>
+                          <div class="slds-text-title slds-p-top_xx-small">{field.label}</div>
+                          <div class="small">
+                            <b>Start:</b> {field.min}
+                            <br>
+                            <b>End:</b> {field.max}
+                          </div>
+                        </template>
+                        <template lwc:else>
                           <lightning-input label={field.label} type="datetime" data-id={field.apiName} value={field.currentValue} onchange={handleValueChange}></lightning-input>
-          
                         </template>
-                        <template lwc:elseif={field.inputType.tel}>
-          
+                      </template>
+
+                      <template lwc:elseif={field.inputType.tel}>
+                        <template lwc:if={field.generateValue}>
+                          <div class="slds-text-title slds-p-top_xx-small">{field.label}</div>
+                          <div class="small"> A random telephone number will be generated.</div>
+                        </template>
+                        <template lwc:else>
                           <lightning-input label={field.label} type="tel" data-id={field.apiName} value={field.currentValue} pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}" onchange={handleValueChange}></lightning-input>
-                          
                         </template>
-                        <template lwc:elseif={field.inputType.email}>
-          
+                      </template>
+
+                      <template lwc:elseif={field.inputType.email}>
+                        <template lwc:if={field.generateValue}>
+                          <div class="slds-text-title slds-p-top_xx-small">{field.label}</div>
+                          <div class="small">
+                            A unique email address will be generated for each record.
+                          </div>
+                        </template>
+                        <template lwc:else>
                           <lightning-input label={field.label} type="email" data-id={field.apiName} value={field.currentValue} onchange={handleValueChange}></lightning-input>
-          
                         </template>
-                        <template lwc:elseif={field.inputType.search}>
-          
-                          <lightning-input label={field.label} type="search" data-id={field.apiName} value={field.currentValue} onchange={handleValueChange}></lightning-input>
-                          
+                      </template>
+
+                      <template lwc:elseif={field.inputType.search}>
+                        <template lwc:if={field.generateValue}>
+                          <div class="slds-text-title slds-p-top_xx-small">{field.label}</div>
+                          <div class="small">{field.queryString}</div>
+                        </template>
+                        <template lwc:else>
+                          <lightning-input placeholder="Enter a Record ID" label={field.label} type="search" data-id={field.apiName} value={field.currentValue} onchange={handleValueChange}></lightning-input>
                         </template>
                       </template>
                     </div>

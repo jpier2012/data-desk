@@ -97,7 +97,7 @@ async handleNewTemplate(){
       if (temp.isSuccess){
         console.log('result : ' + result);
         this.woot('Template saved!');
-        this.loadLayoutAndFields(result.template);
+        this.loadLayoutAndFields(temp.template);
       }
     }
   } catch(error) {
@@ -115,8 +115,8 @@ async handleSave(){
           this.woot('Template saved successfully!')
     });
 
-    await refreshPageLayout({ jsonString: temp });
-    console.log('Page layout refreshed!');
+    // await refreshPageLayout({ jsonString: temp });
+    // console.log('Page layout refreshed!');
   } catch(error){
     this.err(error);
   }

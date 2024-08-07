@@ -5,11 +5,7 @@ import { getObjectInfo } from "lightning/uiObjectInfoApi";
 import getPicklistValues from '@salesforce/apex/DD_Controller.getPicklistValues';
 
 import LightningModal from 'lightning/modal';
-export default class EditModal extends LightningModal {
-  @api type;
-  @api title;
-  @api name;
-  @api description;
+export default class FieldEditModal extends LightningModal {
   @api field;
   @api objectApiName;
 
@@ -17,8 +13,9 @@ export default class EditModal extends LightningModal {
   
   showName = true;
   showRemove = true;
-  buttonLabel = '';
+  title = 'Edit Field';
 
+  description;
   generateValue;
   min;
   max;
@@ -26,6 +23,7 @@ export default class EditModal extends LightningModal {
   recordTypeOptions = [];
   valueOptions;
   allSelected = false;
+  buttonLabel = '';
 
   referenceIdField;
   referenceObjectName;
@@ -35,39 +33,36 @@ export default class EditModal extends LightningModal {
   
   isLoading = true;
   async connectedCallback(){
-    console.log('EditModal input field : ' + JSON.stringify(this.field));
+    console.log('FieldEditModal input field : ' + JSON.stringify(this.field));
     try {
-      let type = this.type;
-      if (type == EDIT_FIELD_PROPERTIES){
+      this.title += ' : ' + this.field.apiName;
+      this.hideRemove = this.field.isRequired;
+      this.generateValue = this.field.generateValue || false;
+      this.min = this.field.min || this.field.currentValue;
+      this.max = this.field.max || this.field.currentValue;
+      this.description = this.field.description;
 
-        this.showName = false;
-        this.buttonLabel = "Remove Field from Layout";
-        this.hideRemove = this.field.isRequired;
-        this.generateValue = this.field.generateValue || false;
-        this.min = this.field.min || this.field.currentValue;
-        this.max = this.field.max || this.field.currentValue;
-
+      if (this.field?.query?.referenceIdField){
         this.referenceIdField = this.field.query?.referenceIdField;
         this.referenceObjectName = this.field.query?.referenceObjectName;
         this.recordTypeId = this.field.query?.recordTypeId;
         this.profileNameLike = this.field.query?.profileNameLike;
         this.criteria = this.field.query?.criteria;
+      }
 
-        if (this.field?.inputType.combobox){
-          let data = await getPicklistValues({ objectApiName: this.objectApiName, fieldApiName: this.field?.apiName });
-          let vals = JSON.parse(data)?.picklistValues;
-          if (vals){
-            let temp = {};
-            this.field.values.forEach(valObj => temp[valObj.value] = true);
-            this.valueOptions = vals.map(valObj => { 
-              return { ...valObj, isSelected: !!temp[valObj.value] }
-            });
-          }
+      if (this.field?.inputType.combobox){
+        let data = await getPicklistValues({ objectApiName: this.objectApiName, fieldApiName: this.field?.apiName });
+        let vals = JSON.parse(data)?.picklistValues;
+        if (vals){
+          let temp = {};
+          this.field.values.forEach(valObj => temp[valObj.value] = true);
+          this.valueOptions = vals.map(valObj => { 
+            return { ...valObj, isSelected: !!temp[valObj.value] }
+          });
+
+          this.allSelected = this.valueOptions.length == vals.length ? true : false;
+          this.buttonLabel = !!this.allSelected ? 'Exclude All Values' : 'Include All Values';
         }
-
-      } else if (type == EDIT_SECTION_PROPERTIES){
-        this.buttonLabel = "Remove Section and Fields";
-        this.hideRemove = this.isDefault;
       }
     } catch(error){
       this.error = error.message;
@@ -121,21 +116,15 @@ export default class EditModal extends LightningModal {
 
     try {
       this.template.querySelectorAll('[data-name="data"]').forEach(element => {
-        data[element.dataset.id] = element.value;
-
-        if (element.type == 'toggle' || element.type == 'checkbox')
-          data[element.dataset.id] = element.checked;
+        data[element.dataset.id] = (element.type == 'toggle' || element.type == 'checkbox') ? element.checked : element.value;
       });
 
       if (this.field?.query?.referenceIdField){
         let query = {};
-
-        query.referenceIdField = this.referenceIdField;
         query.referenceObjectName = this.referenceObjectName;
-        query.recordTypeId = this.recordTypeId;
-        query.profileNameLike = this.profileNameLike;
-        query.criteria = this.criteria;
-  
+
+        this.template.querySelectorAll('[data-name="query"]').forEach(element => { query[element.dataset.id] = element.value });
+
         let recordTypeName = this.recordTypeOptions.find(recType => recType.value == this.recordTypeId)?.label;
         
         let str = `Select the ${this.referenceIdField} field from the ${this.referenceObjectName} object `;
@@ -145,11 +134,12 @@ export default class EditModal extends LightningModal {
         } else if (this.profileNameLike){
           str += `with a profile name like ${this.profileNameLike} `;
         }
-  
+
         if (this.criteria){
           str += (this.recordTypeId || this.profileNameLike) ? `and ${this.criteria}` : `where ${this.criteria}`;
-          str += ' (limited to 1000 records by LastModifiedDate)';
-        }
+        } 
+        
+        str += ' (limited to 1000 records by LastModifiedDate)';
         data.queryString = str;  
         data.query = query;
       }
@@ -176,7 +166,9 @@ export default class EditModal extends LightningModal {
     let temp = this.valueOptions.map(valObj => { return { ...valObj, isSelected: !this.allSelected }});
     this.valueOptions = temp;
     this.allSelected = !this.allSelected;
+    this.buttonLabel = !!this.allSelected ? 'Exclude All Values' : 'Include All Values';
   }
+  
   handleToggleGenerate(event){ this.generateValue = event.currentTarget.checked }
   handleValueChange(event){ this.recordTypeId = event.detail.value }
   handleToggleSelect(event){

@@ -140,11 +140,7 @@ export const getFieldParams = (field) => {
   obj.isNameField = field.apiName.includes('Name') && (field.apiName.includes('First') || field.apiName.includes('Last'));
     
   if (field.picklistValues?.length > 0){
-    // console.log('field.picklistValues ' + JSON.stringify(field.picklistValues));
-    let valObj = field.picklistValues.find(option => option.value == field.defaultValue);
-    // console.log('valObj ' + JSON.stringify(valObj));
-    obj.values = [ valObj ];
-    // console.log('obj.values ' + JSON.stringify(obj.values));
+    obj.values = field.picklistValues;
   }
 
   if (field.query)

@@ -4,27 +4,27 @@ import {
   FROM_SECTION_INDEX, FROM_COLUMN_INDEX, FROM_FIELD_INDEX, FROM_FIELD_NAME, 
   TO_SECTION_INDEX, TO_COLUMN_INDEX, TO_FIELD_INDEX, TO_FIELD_NAME, NEW_INDEX,
   
-  EDIT_SECTION_PROPERTIES, EDIT_FIELD_PROPERTIES, DRAG_STYLE,
+  DRAG_STYLE,
 
-  resize,
   err
  } from 'c/ddUtil';
 import { 
   addFieldToLayout, moveFieldOnLayout, removeFieldFromLayout, setFieldValue,
-  updateField, addNewSection, updateSection, removeSection
+  updateField
  } from 'c/ddActions';
 
  import FieldEditModal from 'c/fieldEditModal'
- import SectionEditModal from 'c/sectionEditModal'
 
 export default class Layout extends ReduxElement {
+  @api field;
+  @api sectionIndex;
+  @api columnIndex;
+  @api fieldIndex;
   @api objectApiName;
 
   isLoading = true;
 
-  constructor(props){ super(); this.err = err.bind(this); this.resize = resize.bind(this); }
-
-  mapStateToProps(state){ return { layout: state.layout } }
+  constructor(props){ super(); this.err = err.bind(this); }
 
   mapDispatchToProps(){
     console.log('Layout mapDispatchToProps');
@@ -33,45 +33,17 @@ export default class Layout extends ReduxElement {
       moveFieldOnLayout: moveFieldOnLayout,
       removeFieldFromLayout: removeFieldFromLayout,
       setFieldValue: setFieldValue,
-      updateField: updateField, 
-      addNewSection: addNewSection,
-      updateSection: updateSection,
-      removeSection: removeSection
+      updateField: updateField
     };
   }
 
   connectedCallback(){
     super.connectRedux();
-    window.addEventListener('resize', this.resize);
 
-    console.log("Layout Redux connected");
+    console.log("FieldCell  connected : " + this.field.apiName);
     this.isLoading = false;
   }
-  renderedCallback(){ this.resize() }
-  handleAddNewSection(){ this.props.addNewSection() }
-
-  async handleSectionEditModal(event){
-    let section = this.props.layout[event.currentTarget.dataset.sectionIndex];
-
-    await SectionEditModal.open({ 
-      size: 'small',
-      section: section
-    })
-    .then(returnData => { 
-      if (!!returnData){
-        if (returnData.REMOVE){
-          this.props.removeSection({ [FROM_SECTION_INDEX]: section.index });
-        } else {
-          this.props.updateSection({
-            ...section, 
-            name: returnData.name, description: returnData.description
-          });
-        }
-      }
-    })
-    .catch(error => this.err(error));
-  }
-
+  
   handleDragStart(event) {
     event.dataTransfer.setData(FROM_FIELD_NAME, event.currentTarget.dataset.id);
     event.dataTransfer.setData(FROM_SECTION_INDEX, event.currentTarget.dataset?.sectionIndex);
