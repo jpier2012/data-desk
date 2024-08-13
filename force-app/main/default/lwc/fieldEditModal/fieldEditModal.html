@@ -1,4 +1,3 @@
-
 <template>
   <lightning-modal-header label={title}></lightning-modal-header>
   <lightning-modal-body>
@@ -42,15 +41,29 @@
               <template lwc:elseif={field.inputType.search}>
 
                 Enter {referenceObjectName} query parameters:
-                <lightning-input type="text" data-name="query" data-id="referenceIdField" label="Reference ID Field" value={referenceIdField}></lightning-input>
-                <template lwc:if={profileNameLike}>
-                  <lightning-input type="text" data-name="query" data-id="profileNameLike" label="Profile Name Like" value={profileNameLike}></lightning-input>
-                </template>
-                <template lwc:elseif={recordTypeOptions}>
-                  <lightning-combobox data-name="query" data-id="recordTypeId" label="Record Type" value={recordTypeId} options={recordTypeOptions} onchange={handleValueChange}></lightning-combobox>
-                </template>
-                <lightning-input type="text" data-name="query" data-id="criteria" label="SOQL Criteria" value={criteria}></lightning-input>
-              
+                <div class="slds-grid slds-wrap slds-p-around_xx-small">
+                  <div class="slds-col slds-size_1-of-2 slds-p-around_xx-small">
+                    <lightning-input type="text" data-name="query" data-id="referenceIdField" label="Reference ID Field" value={referenceIdField}></lightning-input>
+                  </div>
+
+                  <div class="slds-col slds-size_1-of-2 slds-p-around_xx-small">
+                    <template lwc:if={profileNameLike}>
+                      <lightning-input type="text" data-name="query" data-id="profileNameLike" label="Profile Name Like" value={profileNameLike}></lightning-input>
+                    </template>
+                    <template lwc:elseif={recordTypeOptions}>
+                      <lightning-combobox data-name="query" data-id="recordTypeId" label="Record Type" value={recordTypeId} options={recordTypeOptions} onchange={handleValueChange}></lightning-combobox>
+                    </template>
+                  </div>
+                  <div class="slds-col slds-size_1-of-1 slds-p-around_xx-small">
+                    <lightning-input type="text" data-name="query" data-id="criteria" label="SOQL Criteria" value={criteria}></lightning-input>
+                  </div>
+                  <div class="slds-col slds-size_1-of-2 slds-p-around_xx-small">
+                    <lightning-input type="text" data-name="query" data-id="orderBy" label="Order By" value={orderBy}></lightning-input>
+                  </div>
+                  <div class="slds-col slds-size_1-of-2 slds-p-around_xx-small">
+                  <lightning-input type="number" step="1" data-name="query" data-id="recordLimit" label="Record Limit" value={recordLimit}></lightning-input>
+                  </div>
+                </div>
               </template>
               <template lwc:elseif={field.inputType.checkbox}>
                 Enter a percent likelihood of true: 
@@ -58,7 +71,7 @@
                 formatter="percent-fixed" type="number" data-name="data" data-id="min" label="% True" value={min} min="0" max="100"></lightning-input>
               </template>
               <template lwc:elseif={field.inputType.text}>
-                TODO: Add merge fields.
+                Merge fields will be parsed from the input.
               </template>
             </template>
             <template lwc:if={field.inputType.combobox}>
@@ -83,6 +96,15 @@
               <lightning-input type="toggle" data-name="data" data-id="generateValue" 
               message-toggle-active="true" message-toggle-inactive="false" 
               checked={generateValue} onchange={handleToggleGenerate}></lightning-input>
+              <!--<div if:true={generateValue}>
+                <div if:true={isIterable}>
+                  <div class="slds-text-title slds-m-bottom_xxx-small">Iterate Through Values</div>
+                  <lightning-input type="toggle" data-name="data" data-id="iterateValues" 
+                  message-toggle-active="true" message-toggle-inactive="false" 
+                  checked={iteratevalues} onchange={handleToggleIterate} field-level-help="If this is 'true', the automation will loop through every item in the list and create the chosen number of records per item."></lightning-input>
+
+                </div>
+              </div>-->
             </div>
           </div>
         </div>

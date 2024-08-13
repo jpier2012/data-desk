@@ -7,18 +7,19 @@
     <types>
 		<members>redux</members>
 		<members>reduxThunk</members>
+		<members>reduxLogger</members>
 		<name>StaticResource</name>
 	</types>
-    <!--<types>
+    <types>
         <members>DD_Help</members>
         <members>DD_Controller</members>
         <members>DD_Loader</members>
         <members>DD_Builder</members>
+        <members>DD_Deleter</members>
         <members>DataDeskException</members>
-        <members>InvokeToast</members>
         <members>JSONParse</members>
         <name>ApexClass</name>
-    </types>-->
+    </types>
     <types>
         <members>dataDeskApp</members>
         <members>dataDesktop</members>
@@ -26,35 +27,34 @@
         <members>ddReducers</members>
         <members>ddUtil</members>
         <members>deleteModal</members>
-        <members>editModal</members>
+        <members>fieldEditModal</members>
         <members>fieldBar</members>
         <members>loadTemplateModal</members>
         <members>saveTemplateModal</members>
+        <members>sectionEditModal</members>
         <members>provider</members>
         <members>lwcRedux</members>
         <members>layout</members>
-        <members>valueSelectModal</members>
-        <members>workspace</members>
         <name>LightningComponentBundle</name>
     </types>
     <types>
         <members>DataDesk_Template__c</members>
-        <members>DD_Log__c</members>
+        <members>DataDesktop</members>
         <name>CustomTab</name>
     </types>
     <types>
         <members>DataDesk_Template__c</members>
-        <members>DD_Log__c</members>
         <name>CustomObject</name>
     </types>
     <types>
         <members>DataDesk_Template__c-DataDesk Template Layout</members>
-        <members>DD_Log__c-DD Log Layout</members>
         <name>Layout</name>
     </types>
     <types>
-        <members>DD_Log_Record_Page1</members>
-        <members>DD_Work_Order_Record_Page</members>
+        <members>DataDesk</members>
+        <name>PermissionSet</name>
+    </types>
+    <types>
         <members>DataDesk_UtilityBar</members>
         <name>FlexiPage</name>
     </types>

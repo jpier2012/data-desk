@@ -47,7 +47,7 @@ export default class SaveTemplateModal extends LightningModal {
       this.title = 'Edit Template';
       this.templateName = this.selectedTemplate.Name;
       this.description = this.selectedTemplate[this.descriptionFN];
-      this.recordCount = this.selectedTemplate[this.recordCountFN] || 1;
+      this.recordCount = Number(this.selectedTemplate[this.recordCountFN]) || 1;
      } else {   
       this.title = 'Create New Template';
       this.templateName = 'New Template ' + new Date().toJSON().replace('T', ' ').slice(0, 19);
@@ -69,7 +69,7 @@ export default class SaveTemplateModal extends LightningModal {
 
       this.error = undefined;
     } else if (error) {
-      this.error = error;
+      this.error = JSON.stringify(error);
       this.objectOptions = undefined;
       this.fields = undefined;
     }
@@ -129,9 +129,11 @@ export default class SaveTemplateModal extends LightningModal {
       this.template.querySelectorAll('[data-id="template"]').forEach(element => {
         template[element.name] = element.value;
       });
-      template[this.recordTypeNameFN] = this.recordTypeOptions.find(item => item.value == this.selectedRecordTypeId)?.label;
 
-
+      if (this.recordTypeOptions?.length > 0){
+        console.log('this.recordTypeOptions : ' + JSON.stringify(this.recordTypeOptions));
+        template[this.recordTypeNameFN] = this.recordTypeOptions?.find(item => item.value == this.selectedRecordTypeId)?.label;
+      }
     } catch(error) {
       console.log('Modal issue : ' + error.message);
     }

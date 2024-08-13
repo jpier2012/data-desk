@@ -13,6 +13,28 @@ import {
 
 const initialState = { template: {}, layout: [], allFields: [] };
 
+/*
+
+TODO: convert everything to js objects. Whatever is rendered is a combination of these objects. This will facilitate child templates? 
+
+- when adding child objects to a template, configure the SECTION to be of that object
+
+- field addresses 
+  - the key will be a concatenation of the object api name, 
+  the child record index, and the field api name
+{ 
+    [objectApiName] + [recordIndex] + [fieldApiName]: {
+        index: <<i>>
+    }
+}
+
+- section data
+- column data
+
+- field data
+
+*/
+
 const reducer = (state = initialState, action) => {   
     let temp;
     let allFields;

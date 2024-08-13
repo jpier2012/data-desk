@@ -2,29 +2,30 @@
   <lightning-modal-header label="Delete Records"></lightning-modal-header>
   <lightning-modal-body>
     <div if:true={message}>
-      <div style="justify-content: center;">{message}</div>
+      <div style="justify-content: center; font-weight: bold;">{message}</div>
+      <br>
     </div>
     <div class="slds-grid slds-grid_align-space">
-      <div class="slds-col slds-size_1-of-2">
-        <div if:true={showDateRange}>
-          <lightning-input label="Start Date" type="date" 
-            field-level-help="Delete records created on or after this date." 
-            name="deleteStartDate" value={deleteStartDate}>
-          </lightning-input>
-          <br>
-          <lightning-input label="End Date" type="date" 
-            field-level-help="Delete records created on or before this date." 
-            name="deleteEndDate" value={deleteEndDate}>
-          </lightning-input>
-        </div>
+    <div class="slds-col slds-size_1-of-2">
+        <lightning-input label="Start Date" type="date" 
+          field-level-help="Delete records created on or after this date." 
+          name="startDate" value={startDate} onchange={handleStartDateChange}>
+        </lightning-input>
+        <br>
+        <lightning-input label="End Date" type="date" 
+          field-level-help="Delete records created on or before this date." 
+          name="endDate" value={endDate} onchange={handleEndDateChange}>
+        </lightning-input>
       </div>
       <div class="slds-col slds-size_1-of-2 slds-grid slds-grid_align-center">
         <template lwc:if={objectOptions}>
-          <template for:each={objectOptions} for:item="object">
-            <div key={object.value}>
-              <lightning-input type="checkbox" label={object.label} data-id={object.value} checked={value.isSelected} onchange={handleToggleSelect}></lightning-input>
-            </div>
-          </template>
+          <div class="slds-grid slds-grid_vertical">
+            <template for:each={objectOptions} for:item="object">
+              <div key={object.value}>
+                <lightning-input type="checkbox" label={object.label} data-id={object.value} checked={object.isSelected} onchange={handleToggleSelect}></lightning-input>
+              </div>
+            </template>
+          </div>
         </template>
       </div>
     </div>

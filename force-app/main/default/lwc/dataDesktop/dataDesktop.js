@@ -31,6 +31,7 @@ export default class DataDesktop extends ReduxElement {
   recordCountFN = RECORD_COUNT_FIELD.fieldApiName;
 
   isLoading = true;
+  templateLoaded = false;
 
   constructor(props){ super(); this.err = err.bind(this); this.woot = woot.bind(this); }
   mapStateToProps(state){ return { template: state.template, layout: state.layout } }
@@ -51,8 +52,12 @@ async start(){
   this.isLoading = true;
   try {
     let template = await getLastModifiedTemplate();
-    template = JSON.parse(template);
-    this.loadLayoutAndFields(template);
+    if (template != 'null'){
+      template = JSON.parse(template);
+      this.loadLayoutAndFields(template);
+    } else {
+      this.isLoading = false;
+    }
   } catch(error){
     this.err(error);
   }
@@ -61,7 +66,14 @@ async start(){
 
 async handleRun(){
   console.log('Running template...');
-  this.woot('Running!');
+  
+  const event = new ShowToastEvent({
+    title: 'Running!',
+    variant: 'warning',
+    role: 'status'
+  });
+  this.dispatchEvent(event);
+
   let template = { ...this.props.template, [this.fieldJsonFN]: JSON.stringify(this.props.layout) };
   console.log(JSON.stringify(template));
   await runTemplate({ templateJson: JSON.stringify(template) })
@@ -84,6 +96,7 @@ async loadLayoutAndFields(template){
   } catch(error){
     this.err(error);
   }
+  this.templateLoaded = true;
   this.isLoading = false;
 }
 

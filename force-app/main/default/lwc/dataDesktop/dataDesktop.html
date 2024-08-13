@@ -4,47 +4,54 @@
   </template>
   <template lwc:else>
     <div lwc:ref="main" class="main fadein">
-      <div class="slds-grid">
-        <div class="slds-col slds-size_3-of-4 slds-p-around_x-small">
-          <c-layout object-api-name={props.template.Object_API_Name__c}></c-layout>
-        </div>
-        <div class="slds-col slds-size_1-of-4 slds-p-around_x-small">
-          <div class="slds-grid slds-grid_vertical">
-            <div style="overflow-wrap: break-word;" class="box slds-col slds-grid slds-grid_align-spread slds-p-bottom_small">
-              <div>
-                <h1>{props.template.Name}</h1>
-                <h2>{props.template.Object_API_Name__c} : {props.template.Record_Type_API_Name__c}</h2>
-                <h2>Count : {props.template.Record_Count__c}</h2>
-              </div>
-              <div class="slds-grid slds-grid_vertical">
-                <lightning-helptext
-                  icon-name="utility:info"
-                  content={props.template.Description__c}
-                  size="small"
-                ></lightning-helptext>
-                <div class="icon-button" onclick={handleEditTemplate}>
-                  <lightning-icon size="x-small" icon-name="utility:settings" title="Edit Template"></lightning-icon>
+      <template lwc:if={templateLoaded}>
+        <div class="slds-grid">
+          <div class="slds-col slds-size_3-of-4 slds-p-around_x-small">
+            <c-layout object-api-name={props.template.Object_API_Name__c}></c-layout>
+          </div>
+          <div class="slds-col slds-size_1-of-4 slds-p-around_x-small">
+            <div class="slds-grid slds-grid_vertical">
+              <div style="overflow-wrap: break-word;" class="box slds-col slds-grid slds-grid_align-spread slds-p-bottom_small">
+                <div>
+                  <h1>{props.template.Name}</h1>
+                  <h2>{props.template.Object_API_Name__c} : {props.template.Record_Type_API_Name__c}</h2>
+                  <h2>Count : {props.template.Record_Count__c}</h2>
                 </div>
-                <div class="icon-button " onclick={handleDeleteRecords}>
-                  <lightning-icon size="x-small" icon-name="utility:delete" title="Delete Records"></lightning-icon>
+                <div class="slds-grid slds-grid_vertical">
+                  <lightning-helptext
+                    icon-name="utility:info"
+                    content={props.template.Description__c}
+                    size="small"
+                  ></lightning-helptext>
+                  <div class="icon-button" onclick={handleEditTemplate}>
+                    <lightning-icon size="x-small" icon-name="utility:settings" title="Edit Template"></lightning-icon>
+                  </div>
+                  <div class="icon-button " onclick={handleDeleteRecords}>
+                    <lightning-icon size="x-small" icon-name="utility:delete" title="Delete Records"></lightning-icon>
+                  </div>
                 </div>
               </div>
-            </div>
-            <div class="slds-col slds-grid slds-grid_align-center slds-grid_vertical-align-center slds-p-vertical_xx-small">
-              <lightning-button-group>                  
-                <lightning-button label="New" variant="brand" onclick={handleNewTemplate}></lightning-button>
-                <lightning-button label="Load" variant="brand" onclick={handleLoadTemplate}></lightning-button>
-                <lightning-button label="Save" variant="brand" onclick={handleSave}></lightning-button>
-                <lightning-button label="Run" variant="success" onclick={handleRun}></lightning-button>
-              
-              </lightning-button-group> 
-            </div>
-            <div class="slds-col slds-p-vertical_xx-small">
-              <c-field-bar></c-field-bar>
+              <div class="slds-col slds-grid slds-grid_align-center slds-grid_vertical-align-center slds-p-vertical_xx-small">
+                <lightning-button-group>                  
+                  <lightning-button label="New" variant="brand" onclick={handleNewTemplate}></lightning-button>
+                  <lightning-button label="Load" variant="brand" onclick={handleLoadTemplate}></lightning-button>
+                  <lightning-button label="Save" variant="brand" onclick={handleSave}></lightning-button>
+                  <lightning-button label="Run" variant="success" onclick={handleRun}></lightning-button>
+                </lightning-button-group> 
+              </div>
+              <div class="slds-col slds-p-vertical_xx-small">
+                <c-field-bar></c-field-bar>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      </template>
+      <template lwc:else>
+        <h1>Welcome to DataDesk!</h1>
+        <br>
+        <lightning-button label="Create a New Template" variant="brand" onclick={handleNewTemplate}></lightning-button>
+                  
+      </template>
     </div>
   </template>
 </template>

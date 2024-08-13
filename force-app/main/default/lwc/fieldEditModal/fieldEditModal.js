@@ -17,6 +17,8 @@ export default class FieldEditModal extends LightningModal {
 
   description;
   generateValue;
+  iterateValues;
+  isIterable = false;
   min;
   max;
 
@@ -30,6 +32,8 @@ export default class FieldEditModal extends LightningModal {
   recordTypeId;
   profileNameLike;
   criteria;
+  orderBy;
+  recordLimit;
   
   isLoading = true;
   async connectedCallback(){
@@ -48,6 +52,9 @@ export default class FieldEditModal extends LightningModal {
         this.recordTypeId = this.field.query?.recordTypeId;
         this.profileNameLike = this.field.query?.profileNameLike;
         this.criteria = this.field.query?.criteria;
+        this.orderBy = this.field.query?.orderBy;
+        this.recordLimit = this.field.query?.recordLimit;
+        this.isIterable = true;
       }
 
       if (this.field?.inputType.combobox){
@@ -63,6 +70,7 @@ export default class FieldEditModal extends LightningModal {
           this.allSelected = this.valueOptions.length == vals.length ? true : false;
           this.buttonLabel = !!this.allSelected ? 'Exclude All Values' : 'Include All Values';
         }
+        this.isIterable = true;
       }
     } catch(error){
       this.error = error.message;
@@ -121,26 +129,17 @@ export default class FieldEditModal extends LightningModal {
 
       if (this.field?.query?.referenceIdField){
         let query = {};
-        query.referenceObjectName = this.referenceObjectName;
 
-        this.template.querySelectorAll('[data-name="query"]').forEach(element => { query[element.dataset.id] = element.value });
-
-        let recordTypeName = this.recordTypeOptions.find(recType => recType.value == this.recordTypeId)?.label;
-        
-        let str = `Select the ${this.referenceIdField} field from the ${this.referenceObjectName} object `;
-  
-        if (recordTypeName){
-          str += `with the ${recordTypeName} record type `;
-        } else if (this.profileNameLike){
-          str += `with a profile name like ${this.profileNameLike} `;
+        if (this.generateValue){
+          this.template.querySelectorAll('[data-name="query"]').forEach(element => { query[element.dataset.id] = element.value });
+          query.referenceObjectName = this.referenceObjectName;
+        } else {
+          query = { ...this.field.query };
         }
 
-        if (this.criteria){
-          str += (this.recordTypeId || this.profileNameLike) ? `and ${this.criteria}` : `where ${this.criteria}`;
-        } 
+        if (this.recordTypeOptions?.length > 0)
+          query.recordTypeName = this.recordTypeOptions?.find(recType => recType.value == this.recordTypeId)?.label;
         
-        str += ' (limited to 1000 records by LastModifiedDate)';
-        data.queryString = str;  
         data.query = query;
       }
 
@@ -170,6 +169,7 @@ export default class FieldEditModal extends LightningModal {
   }
   
   handleToggleGenerate(event){ this.generateValue = event.currentTarget.checked }
+  handleToggleIterate(event){ this.iterateValues = event.currentTarget.checked }
   handleValueChange(event){ this.recordTypeId = event.detail.value }
   handleToggleSelect(event){
     let val = this.valueOptions.find(valObj => valObj.value == event.currentTarget.dataset.id);

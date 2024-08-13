@@ -30,11 +30,11 @@
             ></lightning-combobox>
           </template>
         </template>  
-        <lightning-input label="Record Count" type="number" data-id="template" name={recordCountFN} value={recordCount}></lightning-input>
+        <lightning-input label="Record Count" type="number" step="1" data-id="template" name={recordCountFN} value={recordCount}></lightning-input>
       </div>
     </div>
   </lightning-modal-body>
-  <lightning-modal-footer>
-      <lightning-button variant="brand" label="Save Template" onclick={handleSave}></lightning-button>
+  <lightning-modal-footer>  
+     <lightning-button variant="brand" label="Save Template" onclick={handleSave}></lightning-button>
   </lightning-modal-footer>
 </template>
